@@ -1,7 +1,7 @@
 
 /**
  * Represents a Robot
- * 
+. * 
  * @author Wilson Mendivelso, David Garzon
  * @version version 1
  */
@@ -11,6 +11,7 @@ public class Robot{
     private boolean isVisible;
     private char direction;
     private int health;
+    private int[] lastMove; //Añadido
     
     /**
      * Constructor for objects of class Robot
@@ -22,6 +23,7 @@ public class Robot{
         positionY = y;
         direction = 'N';
         health = 10;
+        lastMove = new int[2]; //Añadido
     }
     
     /**
@@ -49,7 +51,7 @@ public class Robot{
     }
     
     /**
-     * return false if healt = 0
+     * Return false if health is equal to 0
      * @return 
      */
     public boolean isOk(){
