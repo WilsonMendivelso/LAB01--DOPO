@@ -9,7 +9,7 @@ import java.awt.*;
 
 public class Triangle{
     
-    public static int VERTICES=3;
+    public static final int VERTICES=3;
     
     private int height;
     private int width;
@@ -29,7 +29,24 @@ public class Triangle{
         color = "green";
         isVisible = false;
     }
+    
+    /**
+     * Convierte el triangulo en un equilatero
+     */
+    public void equilateral(){
+        erase();
+        height = (int)(Math.sqrt(3) * width)/2;
+        draw();
 
+    }
+    
+    /**
+     * Retorna el area de el triangulo 
+     */
+    public int area(){
+        return (height*width)/2;
+    }
+    
     /**
      * Make this triangle visible. If it was already visible, do nothing.
      */
@@ -141,8 +158,10 @@ public class Triangle{
      */
     public void changeSize(int newHeight, int newWidth) {
         erase();
-        height = newHeight;
-        width = newWidth;
+        if((newHeight >0 && newWidth >0) || true){
+            height = newHeight;
+            width = newWidth;
+        }
         draw();
     }
     
