@@ -30,8 +30,23 @@ public class Triangle{
         isVisible = false;
     }
     
+    /** 
+     * Create a new triangle at default position. 
+     * @param color it's the triangle's color. 
+     * @param width it's the triangle's width. 
+     * @param height it's the triangleś height. 
+     */ 
+    public Triangle(String color, int width, int height){
+        this.color = color;
+        this.width = width;
+        this.height = height;
+        xPosition = 140;
+        yPosition = 15;
+        isVisible = false;
+    }
+    
     /**
-     * Convierte el triangulo en un equilatero
+     * Convierte el triángulo en un equilatero
      */
     public void equilateral(){
         erase();
@@ -41,10 +56,37 @@ public class Triangle{
     }
     
     /**
-     * Retorna el area de el triangulo 
+     * Calcula el perimetro del triángulo
+     * @return devuelve el valor del perimetro del triángulo.
+     */
+    public int perimeter(){
+        int x = (int)Math.pow(height, 2);
+        int y = (int)Math.pow(width/2, 2);
+        return (int)(((Math.sqrt(x+y))*2)+width);
+    }
+    
+    /**
+     * Calcula el área del triángulo 
+     * @return el valor del área del triángulo. 
      */
     public int area(){
-        return (height*width)/2;
+        return (Math.abs(height)*width)/2;
+    }
+
+    /** 
+     * Se mueve hacia la derecha (positivo) o izquierda (negativo) abs(times) veces. 
+     * @param times la cantidad de veces que se mueve y su dirección. 
+     */ 
+    public void walk(int times){
+        for( int i=0; i<= Math.abs(times); i++ ){
+            if(times < 0){
+                moveLeft();
+            }else if(times > 0){
+                moveRight();
+            }
+            
+        }
+        
     }
     
     /**
@@ -158,7 +200,7 @@ public class Triangle{
      */
     public void changeSize(int newHeight, int newWidth) {
         erase();
-        if((newHeight >0 && newWidth >0) || true){
+        if(newWidth >0){
             height = newHeight;
             width = newWidth;
         }
