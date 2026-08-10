@@ -239,4 +239,26 @@ public class Triangle{
             canvas.erase(this);
         }
     }
+    
+    /**
+     * Get Triangle's coordenates.
+     * @return Triangle's coordenates.
+     */
+        public int[] getCoordenates(){
+        int[] temp = new int[2];
+        temp[0] = xPosition;
+        temp[1] = yPosition;
+        return temp;
+    }
+    
+    /**
+     * Get Triangle's size.
+     * @return Return an array with the Height and the Width
+     */
+    public int[] getSize(){
+        int[] temp = new int[2];
+        temp[0] = height;
+        temp[1] = width;
+        return temp;
+    }
 }

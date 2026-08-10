@@ -130,6 +130,8 @@ public class Canvas{
             graphic.setColor(Color.white);
         else if(colorString.equals("black"))
             graphic.setColor(Color.black);
+        else if(colorString.equals("gray"))
+            graphic.setColor(new Color(128,128,128));
     }
 
     /**
@@ -167,7 +169,14 @@ public class Canvas{
         graphic.fill(new java.awt.Rectangle(0, 0, size.width, size.height));
         graphic.setColor(original);
     }
-
+    
+    /**
+     * Obtain JPanel
+     * @return JPanel
+     */
+    public JPanel getJPanel(){
+        return canvas;
+    }
 
     /************************************************************************
      * Inner class CanvasPane - the actual canvas component contained in the

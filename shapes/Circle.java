@@ -175,4 +175,11 @@ public class Circle{
         temp[1] = yPosition;
         return temp;
     }
+    /**
+     * Get Circle's diameter
+     * @return Cicle's diameter
+     */
+    public int getDiameter(){
+        return diameter;
+    }
 }

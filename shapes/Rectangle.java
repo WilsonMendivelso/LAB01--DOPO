@@ -182,5 +182,26 @@ public class Rectangle{
             canvas.erase(this);
         }
     }
+    /**
+     * Get Rectangle's coordenates.
+     * @return Rectangle's coordenates.
+     */
+        public int[] getCoordenates(){
+        int[] temp = new int[2];
+        temp[0] = xPosition;
+        temp[1] = yPosition;
+        return temp;
+    }
+    
+    /**
+     * Get Rectangle's size.
+     * @return Return an array with the Height and the Width
+     */
+        public int[] getSize(){
+        int[] temp = new int[2];
+        temp[0] = height;
+        temp[1] = width;
+        return temp;
+    }
 }
 
