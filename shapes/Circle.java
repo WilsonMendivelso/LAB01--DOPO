@@ -165,6 +165,14 @@ public class Circle{
         draw();
     }
 
-
-
+    /**
+     * Get Circle's coordenates.
+     * @return Circle's coordenates.
+     */
+    public int[] getCoordenates(){
+        int[] temp = new int[2];
+        temp[0] = xPosition;
+        temp[1] = yPosition;
+        return temp;
+    }
 }
