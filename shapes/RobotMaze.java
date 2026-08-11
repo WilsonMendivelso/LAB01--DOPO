@@ -47,7 +47,7 @@ public class RobotMaze
         
         while(robot.isOk()){
             String[] opciones = {"Moverse", "Cambiar dirección", "Terminar el juego"};
-        
+            
             int opcion = JOptionPane.showOptionDialog(
                 tablero.getJPanel(),
                 "¿Qué deseas hacer?",
@@ -56,7 +56,27 @@ public class RobotMaze
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 opciones,
-                "Moverse");       
+                "Moverse");  
+            if (opcion == 0){
+                String time = JOptionPane.showInputDialog("Cuantas veces? ");
+                int times = Integer.parseInt(time);
+                movingRobot(times);
+            
+            }else if (opcion == 1){
+                String dir = JOptionPane.showInputDialog("A donde? ");
+                char direction = dir.charAt(0);
+                movingRobot(direction);
+            
+            }else if (opcion == 2){
+                int va= getRobotsHealth();
+                for(int i = 0; i<=(va) ; i++){
+                    robotWasDamaged();
+                }
+                robot.makeVisibleDeathRobot();
+                JOptionPane.showMessageDialog(null, "!Termino el juego! :( ");
+                break;
+            }
+
         }
     }
     
@@ -66,7 +86,7 @@ public class RobotMaze
      * @param times it indicates how many times the robot will be moved
      */
     public void movingRobot(int times){
-        //Code
+        robot.move(times);
     }
     
     /**
@@ -74,7 +94,7 @@ public class RobotMaze
      * @param direction is the new direction
      */
     public void turningRobot(char direction){
-        //Code
+        robot.turn(direction);
     }
 
     /**
