@@ -31,8 +31,14 @@ public class Rectangle{
         color = "magenta";
         isVisible = false;
     }
+    /**
+     * Returns the Rectangle's color
+     * @return the Color's name.
+     */
+    public String getColor(){
+        return color;
+    }
     
-
     /**
      * Make this rectangle visible. If it was already visible, do nothing.
      */

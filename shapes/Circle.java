@@ -27,7 +27,10 @@ public class Circle{
         isVisible = false;
     }
 
-
+    public String getColor(){
+        return color;
+    }
+    
        
     public void makeVisible(){
         isVisible = true;

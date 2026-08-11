@@ -16,6 +16,7 @@ public class Robot{
     private Rectangle[] CuerpoRectangular;
     private Circle[] CuerpoCircular;
     private Triangle[] CuerpoTriangular;
+    private int distanceMove;
     
     /**
      * Constructor for objects of class Robot
@@ -27,17 +28,17 @@ public class Robot{
         positionY = y;
         direction = 'N';
         health = 10;
-        lastMove = new int[2]; 
-                
+        lastMove = new int[2];
         
+        distanceMove = 20;
 
         
         CuerpoCircular= new Circle[5];
         CuerpoCircular[0] = new Circle();
         CuerpoCircular[0].changeSize(20);
         CuerpoCircular[0].changeColor("red");
-        CuerpoCircular[0].moveHorizontal(-CuerpoCircular[0].getCoordenates()[0]+20*x);
-        CuerpoCircular[0].moveVertical(-CuerpoCircular[0].getCoordenates()[1]+20*y);
+        CuerpoCircular[0].moveHorizontal(1+(distanceMove/25)-CuerpoCircular[0].getCoordenates()[0]+20*x);
+        CuerpoCircular[0].moveVertical((-1-CuerpoCircular[0].getCoordenates()[1]+20*y));
 
         
         CuerpoCircular[1] = new Circle();
@@ -62,7 +63,7 @@ public class Robot{
         CuerpoTriangular[2] = new Triangle();
         CuerpoTriangular[2].changeColor("white");
         
-        changePixelSize(CuerpoCircular[0].getDiameter());        
+        changePixelSize(CuerpoCircular[0].getDiameter());    
     }
     
     /**
@@ -94,8 +95,9 @@ public class Robot{
                 if(positionY - (step)/Math.abs(step) >= 0){
                     positionY = positionY - (step)/Math.abs(step);
                     makeInvisible();       
-                    CuerpoCircular[0].moveVertical(-CuerpoCircular[0].getDiameter());
+                    CuerpoCircular[0].moveVertical(-distanceMove);
                     moveBody();
+
                 }
                 else{
                     JOptionPane.showMessageDialog(null, "Movimiento erróneo.");
@@ -103,11 +105,12 @@ public class Robot{
                 }
             }
             else if(direction == 'S'){
-                if(positionY + (step)/Math.abs(step) >= 0){
+                if(positionY + (step)/Math.abs(step) < 1+(int)(280/distanceMove)){
                     positionY = positionY + (step)/Math.abs(step);
                     makeInvisible(); 
-                    CuerpoCircular[0].moveVertical(CuerpoCircular[0].getDiameter());
+                    CuerpoCircular[0].moveVertical(distanceMove);
                     moveBody();
+
                 }
                 else{
                     JOptionPane.showMessageDialog(null, "Movimiento erróneo.");
@@ -115,11 +118,12 @@ public class Robot{
                 }
             }
             else if(direction == 'E'){
-                if(positionX + (step)/Math.abs(step) >= 0){
+                if(positionX + (step)/Math.abs(step) <1+ (int)(280/distanceMove)){
                     positionX = positionX + (step)/Math.abs(step);
                     makeInvisible(); 
-                    CuerpoCircular[0].moveHorizontal(CuerpoCircular[0].getDiameter());
+                    CuerpoCircular[0].moveHorizontal(distanceMove);
                     moveBody();
+
                 }
                 else{
                     JOptionPane.showMessageDialog(null, "Movimiento erróneo.");
@@ -129,8 +133,9 @@ public class Robot{
                 if(positionX - (step)/Math.abs(step) >= 0){
                     positionX = positionX - (step)/Math.abs(step);                    
                     makeInvisible(); 
-                    CuerpoCircular[0].moveHorizontal(-CuerpoCircular[0].getDiameter());
+                    CuerpoCircular[0].moveHorizontal(-distanceMove);
                     moveBody();
+
                 }
                 else{
                     JOptionPane.showMessageDialog(null, "Movimiento erróneo.");
@@ -167,7 +172,6 @@ public class Robot{
     public void turn(char direction){
         this.direction = direction;
         makeInvisible();
-        makeVisible();
     }
     /**
      * Makes visible all Robot's body parts.
@@ -187,24 +191,26 @@ public class Robot{
         
         Circle ojo1 = new Circle();
         ojo1.changeSize(1+CuerpoCircular[1].getDiameter()/2);
-        ojo1.moveHorizontal(-20 + (int)(CuerpoCircular[1].getCoordenates()[0]+ ojo1.getDiameter()/2) - ojo1.getDiameter()/6);
+        ojo1.moveHorizontal(-20-1 + (int)(CuerpoCircular[1].getCoordenates()[0]+ ojo1.getDiameter()/2) - ojo1.getDiameter()/6);
         ojo1.moveVertical(-15 + CuerpoCircular[1].getCoordenates()[1] + ojo1.getDiameter()/2);
         ojo1.changeColor("blue");
         
         
         Circle ojo2 = new Circle();
         ojo2.changeSize(1+CuerpoCircular[1].getDiameter()/2);
-        ojo2.moveHorizontal(-20 + (int)(CuerpoCircular[2].getCoordenates()[0] + ojo2.getDiameter()/2) - ojo2.getDiameter()/6);
+        ojo2.moveHorizontal(-20-1 + (int)(CuerpoCircular[2].getCoordenates()[0] + ojo2.getDiameter()/2) - ojo2.getDiameter()/6);
         ojo2.moveVertical(-15 + CuerpoCircular[2].getCoordenates()[1] + ojo2.getDiameter()/2);
         ojo2.changeColor("blue");
         
         if(direction == 'N'){
-            ojo1.moveVertical(-ojo1.getDiameter()/2);
-            ojo2.moveVertical(-ojo2.getDiameter()/2);
+            ojo1.moveVertical(-1-ojo1.getDiameter()/2);
+            ojo1.moveHorizontal(1);
+            ojo2.moveVertical(-1-ojo2.getDiameter()/2);
+            ojo2.moveHorizontal(1);
         }
         else if(direction == 'S'){
-            ojo1.moveVertical(1+ojo1.getDiameter()/2);
-            ojo2.moveVertical(1+ojo2.getDiameter()/2);
+            ojo1.moveVertical(ojo1.getDiameter()/2);
+            ojo2.moveVertical(ojo2.getDiameter()/2);
         }        
         else if(direction == 'W'){
             ojo1.moveHorizontal(-ojo1.getDiameter()/2);
@@ -244,8 +250,12 @@ public class Robot{
      */
     public void changePixelSize(int pixel){
         makeInvisible();
+        CuerpoCircular[0].moveHorizontal(-(distanceMove/25));
         
-        CuerpoCircular[0].changeSize(pixel);
+        distanceMove = pixel;
+        
+        CuerpoCircular[0].changeSize(pixel-5);
+        CuerpoCircular[0].moveHorizontal((distanceMove/25));
         
         CuerpoCircular[1].changeSize((int)CuerpoCircular[0].getDiameter()/4);
 
@@ -286,7 +296,6 @@ public class Robot{
         CuerpoTriangular[2].moveHorizontal(-CuerpoTriangular[2].getCoordenates()[0]+ 5*CuerpoTriangular[2].getSize()[1]/2 + 5*CuerpoTriangular[2].getSize()[0]/10 + (int)(CuerpoCircular[0].getCoordenates()[0]));
         CuerpoTriangular[2].moveVertical(-CuerpoTriangular[2].getCoordenates()[1]+ CuerpoCircular[0].getDiameter() - CuerpoTriangular[2].getSize()[0]/4 + (int)((CuerpoCircular[0].getCoordenates()[1])));
     
-        makeVisible();
     }
     
     /**

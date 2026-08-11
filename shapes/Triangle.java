@@ -30,6 +30,10 @@ public class Triangle{
         isVisible = false;
     }
     
+    public String getColor(){
+        return color;
+    }
+    
     /** 
      * Create a new triangle at default position. 
      * @param color it's the triangle's color. 
