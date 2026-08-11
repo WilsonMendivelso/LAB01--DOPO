@@ -65,8 +65,11 @@ public class RobotMaze
             }else if (opcion == 1){
                 String dir = JOptionPane.showInputDialog("A donde? ");
                 char direction = dir.charAt(0);
-                movingRobot(direction);
-            
+                if (dir.charAt(0)!= 'W' || dir.charAt(0)!= 'S' || dir.charAt(0)!= 'N' || dir.charAt(0)!= 'E'){
+                    JOptionPane.showMessageDialog(null, "Opcion invalida, solamente: (N, S, E, W)");
+                }else{    
+                    turningRobot(direction);
+                }              
             }else if (opcion == 2){
                 int va= getRobotsHealth();
                 for(int i = 0; i<=(va) ; i++){
