@@ -34,7 +34,7 @@ public class Robot{
         
         CuerpoCircular= new Circle[5];
         CuerpoCircular[0] = new Circle();
-        CuerpoCircular[0].changeSize(50);
+        CuerpoCircular[0].changeSize(20);
         CuerpoCircular[0].changeColor("red");
         CuerpoCircular[0].moveHorizontal(-CuerpoCircular[0].getCoordenates()[0]+20*x);
         CuerpoCircular[0].moveVertical(-CuerpoCircular[0].getCoordenates()[1]+20*y);
@@ -63,7 +63,6 @@ public class Robot{
         CuerpoTriangular[2].changeColor("white");
         
         changePixelSize(CuerpoCircular[0].getDiameter());        
-        makeVisibleDeathRobot();
     }
     
     /**
@@ -94,8 +93,7 @@ public class Robot{
             if(direction == 'N'){
                 if(positionY - (step)/Math.abs(step) >= 0){
                     positionY = positionY - (step)/Math.abs(step);
-                    makeInvisible();
-                    
+                    makeInvisible();       
                     CuerpoCircular[0].moveVertical(-CuerpoCircular[0].getDiameter());
                     moveBody();
                 }
@@ -270,11 +268,11 @@ public class Robot{
     private void moveBody(){
         makeInvisible();
         
-        CuerpoCircular[1].moveHorizontal(-CuerpoCircular[1].getCoordenates()[0]+ (int)((CuerpoCircular[0].getCoordenates()[0]*20)/20) + 6*CuerpoCircular[1].getDiameter()/7);
-        CuerpoCircular[1].moveVertical(-CuerpoCircular[1].getCoordenates()[1]+ (int)((CuerpoCircular[0].getCoordenates()[1]*20)/20) + CuerpoCircular[1].getDiameter());
+        CuerpoCircular[1].moveHorizontal(-CuerpoCircular[1].getCoordenates()[0]+ (int)((CuerpoCircular[0].getCoordenates()[0])) + 6*CuerpoCircular[1].getDiameter()/7);
+        CuerpoCircular[1].moveVertical(-CuerpoCircular[1].getCoordenates()[1]+ (int)((CuerpoCircular[0].getCoordenates()[1])) + CuerpoCircular[1].getDiameter());
         
-        CuerpoCircular[2].moveHorizontal(-CuerpoCircular[2].getCoordenates()[0] + (int)((CuerpoCircular[0].getCoordenates()[0]*20)/20) + 7*CuerpoCircular[2].getDiameter()/3);
-        CuerpoCircular[2].moveVertical(-CuerpoCircular[2].getCoordenates()[1] + (int)((CuerpoCircular[0].getCoordenates()[1]*20)/20) + CuerpoCircular[2].getDiameter());
+        CuerpoCircular[2].moveHorizontal(-CuerpoCircular[2].getCoordenates()[0] + (int)((CuerpoCircular[0].getCoordenates()[0])) + 7*CuerpoCircular[2].getDiameter()/3);
+        CuerpoCircular[2].moveVertical(-CuerpoCircular[2].getCoordenates()[1] + (int)((CuerpoCircular[0].getCoordenates()[1])) + CuerpoCircular[2].getDiameter());
         
         CuerpoRectangular[0].moveHorizontal(-CuerpoRectangular[0].getCoordenates()[0] + (int)((CuerpoCircular[0].getCoordenates()[0])));
         CuerpoRectangular[0].moveVertical(-CuerpoRectangular[0].getCoordenates()[1] + (int)(14* CuerpoCircular[0].getDiameter()/25) + (int)((CuerpoCircular[0].getCoordenates()[1])));
