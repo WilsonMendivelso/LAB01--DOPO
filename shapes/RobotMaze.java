@@ -28,6 +28,7 @@ public class RobotMaze
             }
         }
         tablero.setVisible(true);
+        
         int pantalla =tablero.getJPanel().getWidth();
         entrada = new int[2];
         salida = new int[2];
@@ -73,6 +74,23 @@ public class RobotMaze
         robot.turn('N');
         robot.adaptTriangle(posicionesCuadrados[robot.coordinates()[0]][robot.coordinates()[1]].getColor());
         robot.makeVisible();
+        
+        int cantPared=-1;
+        int c = 0;
+        while(cantPared < 0 || cantPared > tamaño-2 ){
+            String cantPar = JOptionPane.showInputDialog("Cuantas paredes quieres colocar? (entre 0 y "+(tamaño-2)+")");
+            if (cantPar != null){
+                cantPared = Integer.parseInt(cantPar);
+                
+                for(int i=0 ; i < cantPared; i++){
+                    if(putWall()){
+                    }else{
+                       i--;
+                    }
+                }
+            }
+            
+        }
 
         JOptionPane.showMessageDialog(null, "Se un buen fantasma y acaba con PacMan, intenta no chocar, si no, irás perdiendo todas tus vidas.");
         boolean si = true;
@@ -138,7 +156,25 @@ public class RobotMaze
         }
     }
     
-
+    /**
+     * put a Wall in the board
+     * @return boolean for the cycle of cantPared
+     */
+    public boolean putWall(){
+        JOptionPane.showMessageDialog(null, "Escriba las coordenadas, Primero X y luego Y"); 
+        String equis = JOptionPane.showInputDialog("X: ");
+        String ye = JOptionPane.showInputDialog("Y:");
+        int X = Integer.parseInt(equis);
+        int Y = Integer.parseInt(ye);
+        if(posicionesCuadrados[X][Y].getColor() == "white"){
+            posicionesCuadrados[X][Y].changeColor("black");
+            return true;
+        }else{
+            JOptionPane.showMessageDialog(null, "Opcion invalida, esta posicion ya esta ocupada");
+            return false;
+        }
+            
+    }
     
     
     /**
@@ -255,4 +291,5 @@ public class RobotMaze
         }
         return true;
     }
-}
+}    
+    
