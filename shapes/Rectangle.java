@@ -189,10 +189,10 @@ public class Rectangle{
         }
     }
     /**
-     * Get Rectangle's coordenates.
-     * @return Rectangle's coordenates.
+     * Get Rectangle's coordinates.
+     * @return Rectangle's coordinates.
      */
-        public int[] getCoordenates(){
+        public int[] getCoordinates(){
         int[] temp = new int[2];
         temp[0] = xPosition;
         temp[1] = yPosition;

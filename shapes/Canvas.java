@@ -26,7 +26,7 @@ public class Canvas{
      */
     public static Canvas getCanvas(){
         if(canvasSingleton == null) {
-            canvasSingleton = new Canvas("BlueJ Shapes Demo", 300, 300, 
+            canvasSingleton = new Canvas("BlueJ Shapes Demo", 500, 500, 
                                          Color.white);
         }
         canvasSingleton.setVisible(true);
@@ -132,6 +132,8 @@ public class Canvas{
             graphic.setColor(Color.black);
         else if(colorString.equals("gray"))
             graphic.setColor(new Color(128,128,128));
+        else if(colorString.equals("deepGreen"))
+            graphic.setColor(new Color(0,36,25));
     }
 
     /**

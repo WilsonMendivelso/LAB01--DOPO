@@ -30,6 +30,10 @@ public class Triangle{
         isVisible = false;
     }
     
+    /**
+     * Returns the Rectangle's color
+     * @return the Color's name.
+     */
     public String getColor(){
         return color;
     }
@@ -245,10 +249,10 @@ public class Triangle{
     }
     
     /**
-     * Get Triangle's coordenates.
-     * @return Triangle's coordenates.
+     * Get Triangle's coordinates.
+     * @return Triangle's coordinates.
      */
-        public int[] getCoordenates(){
+        public int[] getCoordinates(){
         int[] temp = new int[2];
         temp[0] = xPosition;
         temp[1] = yPosition;

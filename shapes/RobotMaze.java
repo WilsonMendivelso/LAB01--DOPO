@@ -21,9 +21,11 @@ public class RobotMaze
     public RobotMaze(){
         tablero = Canvas.getCanvas();
         int tamaño = 5;
-        while(tamaño < 7 || tamaño > 14 ){
-            String tamLab = JOptionPane.showInputDialog("Tamaño del laberinto (entre 7 y 14)");
-            tamaño = Integer.parseInt(tamLab);
+        while(tamaño < 10 || tamaño > 20 ){
+            String tamLab = JOptionPane.showInputDialog("Tamaño del laberinto (entre 10 y 20)");
+            if (tamLab != null){
+                tamaño = Integer.parseInt(tamLab);
+            }
         }
         tablero.setVisible(true);
         int pantalla =tablero.getJPanel().getWidth();
@@ -31,13 +33,12 @@ public class RobotMaze
         salida = new int[2];
         posicionesCuadrados = new Rectangle[tamaño+1][tamaño+1];
         generateEntryExit(tamaño);
-
         
         for(int i = 0; i<=tamaño; i++){
             for(int j = 0; j <=tamaño; j++){
                 Rectangle cuadrado = new Rectangle();
-                cuadrado.moveHorizontal(-cuadrado.getCoordenates()[0] + i*(280/tamaño));
-                cuadrado.moveVertical(-cuadrado.getCoordenates()[1] + j*(280/tamaño));
+                cuadrado.moveHorizontal(-cuadrado.getCoordinates()[0] + i*((int)((pantalla-pantalla/tamaño+1)/tamaño)));
+                cuadrado.moveVertical(-cuadrado.getCoordinates()[1] + j*((int)((pantalla-pantalla/tamaño+1)/tamaño)));
                 cuadrado.changeSize((int)((pantalla-pantalla/tamaño+1)/tamaño), (int)((pantalla-pantalla/tamaño+1)/tamaño));
                 cuadrado.changeColor("white");
                 if(i==0 || j== 0 || i== tamaño || j==tamaño){
@@ -58,7 +59,7 @@ public class RobotMaze
         }
         
         robot = new Robot(0,0);
-        robot.changePixelSize((280/tamaño));
+        robot.changePixelSize((int)((pantalla-pantalla/tamaño+1)/tamaño));
         if(entrada[0] !=0){
             robot.makeInvisible();
             robot.turn('E');
@@ -68,12 +69,12 @@ public class RobotMaze
             robot.makeInvisible();
             robot.turn('S');
             robot.move(entrada[1]);
-
         }
         robot.turn('N');
+        robot.adaptTriangle(posicionesCuadrados[robot.coordinates()[0]][robot.coordinates()[1]].getColor());
         robot.makeVisible();
 
-        JOptionPane.showMessageDialog(null, "Se un buen fantasma y acaba con PacMan, intenta no chocar, si no, perderás todas tus vidas.");
+        JOptionPane.showMessageDialog(null, "Se un buen fantasma y acaba con PacMan, intenta no chocar, si no, irás perdiendo todas tus vidas.");
         boolean si = true;
         
         
@@ -90,54 +91,18 @@ public class RobotMaze
                 opciones,
                 "Moverse");  
             if (opcion == 0){
-                String time = JOptionPane.showInputDialog("¿Cuántas veces? ");
+                String time = JOptionPane.showInputDialog("¿Cuántas veces?");
                 if(time !=null){
                     int times = Integer.parseInt(time);
                     for(int i = 0; i< times; i++){
-                        int[] coords = robot.coordinates();
-                        int posX=coords[0];
-                        int posY=coords[1];
-                        
-                        //Puede pasar que inicie y se vaya para la izquierda
-                        if(robot.direction() =='N'){
-                            if(posicionesCuadrados[posX][posY-1].getColor() == "black" || posicionesCuadrados[posX][posY-1].getColor() == "green"){
-                                robotWasDamaged();
-                                posicionesCuadrados[posX][posY-1].changeColor("green");
-                                JOptionPane.showMessageDialog(null, "Auch, chocaste");
+                        if(validNextWall()){
+                            movingRobot(1);
+                            if(robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]){//
+                                JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
+                                si=false;
                                 break;
-                            }
+                            }      
                         }
-                        else if(robot.direction() =='S'){
-                            if(posicionesCuadrados[posX][posY+1].getColor() == "black" || posicionesCuadrados[posX][posY+1].getColor() == "green"){
-                                robotWasDamaged();
-                                posicionesCuadrados[posX][posY+1].changeColor("green");
-                                JOptionPane.showMessageDialog(null, "Auch, chocaste");
-                                break;
-                            }
-                        }
-                        else if(robot.direction() =='W'){
-                            if(posicionesCuadrados[posX-1][posY].getColor() == "black" || posicionesCuadrados[posX-1][posY].getColor() == "green"){
-                                robotWasDamaged();
-                                posicionesCuadrados[posX-1][posY].changeColor("green");
-                                JOptionPane.showMessageDialog(null, "Auch, chocaste");
-                                break;
-                            }
-                        }                        
-                        else if(robot.direction() =='E'){
-                            if(posicionesCuadrados[posX+1][posY].getColor() == "black" || posicionesCuadrados[posX+1][posY].getColor() == "green"){
-                                robotWasDamaged();
-                                posicionesCuadrados[posX+1][posY].changeColor("green");
-                                JOptionPane.showMessageDialog(null, "Auch, chocaste");
-                                break;
-                            }
-                        }
-                        
-                        movingRobot(1);
-                        if(robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]){//
-                            JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
-                            si=false;
-                            break;
-                        }                        
                     }
                 }
             }
@@ -183,6 +148,7 @@ public class RobotMaze
     public void movingRobot(int times){
         robot.makeInvisible();
         robot.move(times);
+        robot.adaptTriangle(posicionesCuadrados[robot.coordinates()[0]][robot.coordinates()[1]].getColor());
         robot.makeVisible();
     }
     
@@ -242,5 +208,51 @@ public class RobotMaze
             salida[0]=c1;
             salida[1]=f1;
         }
+    }
+    
+    /**
+     * Checks if next direction is a valid direction to be moved
+     */
+    public boolean validNextWall(){
+        int[] coords = robot.coordinates();
+        int posX=coords[0];
+        int posY=coords[1];
+        if((robot.direction() == 'N' && posY-1 < 0 )|| robot.direction() == 'W' && posX-1 < 0){
+            JOptionPane.showMessageDialog(null, "Movimiento te lleva fuera del mapa");
+            return false;
+        }
+        else if(robot.direction() =='N'){
+            if(posicionesCuadrados[posX][posY-1].getColor() == "black" || posicionesCuadrados[posX][posY-1].getColor() == "gray"){
+                robotWasDamaged();
+                posicionesCuadrados[posX][posY-1].changeColor("gray");
+                JOptionPane.showMessageDialog(null, "Auch, chocaste");
+                return false;
+                }
+            }
+        else if(robot.direction() =='S'){
+            if(posicionesCuadrados[posX][posY+1].getColor() == "black" || posicionesCuadrados[posX][posY+1].getColor() == "gray"){
+                robotWasDamaged();
+                posicionesCuadrados[posX][posY+1].changeColor("gray");
+                JOptionPane.showMessageDialog(null, "Auch, chocaste");
+                return false;
+                }
+            }
+        else if(robot.direction() =='W'){
+            if(posicionesCuadrados[posX-1][posY].getColor() == "black" || posicionesCuadrados[posX-1][posY].getColor() == "gray"){
+                robotWasDamaged();
+                posicionesCuadrados[posX-1][posY].changeColor("gray");
+                JOptionPane.showMessageDialog(null, "Auch, chocaste");
+                return false;
+            }
+        }                        
+        else if(robot.direction() =='E'){
+            if(posicionesCuadrados[posX+1][posY].getColor() == "black" || posicionesCuadrados[posX+1][posY].getColor() == "gray"){
+                robotWasDamaged();
+                posicionesCuadrados[posX+1][posY].changeColor("gray");
+                JOptionPane.showMessageDialog(null, "Auch, chocaste");
+                return false;
+            }
+        }
+        return true;
     }
 }

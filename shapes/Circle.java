@@ -27,6 +27,10 @@ public class Circle{
         isVisible = false;
     }
 
+    /**
+     * Returns the Rectangle's color
+     * @return the Color's name.
+     */
     public String getColor(){
         return color;
     }
@@ -169,15 +173,16 @@ public class Circle{
     }
 
     /**
-     * Get Circle's coordenates.
-     * @return Circle's coordenates.
+     * Get Circle's coordinates.
+     * @return Circle's coordinates.
      */
-    public int[] getCoordenates(){
+    public int[] getCoordinates(){
         int[] temp = new int[2];
         temp[0] = xPosition;
         temp[1] = yPosition;
         return temp;
     }
+    
     /**
      * Get Circle's diameter
      * @return Cicle's diameter
