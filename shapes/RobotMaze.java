@@ -120,6 +120,8 @@ public class RobotMaze
                                 si=false;
                                 break;
                             }      
+                        }else{
+                            break;
                         }
                     }
                 }
