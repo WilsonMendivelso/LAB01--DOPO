@@ -119,7 +119,7 @@ public class RobotMaze
                             if(validNextWall()){
                                 movingRobot(1);
                                 robot.makeVisible();
-                                if(robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]){//
+                                if(robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]){
                                     JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
                                     si=false;
                                     break;
@@ -134,7 +134,7 @@ public class RobotMaze
                             if(!moveBack()){
                                 break;
                             }
-                            if(robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]){//
+                            if(robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]){
                                 JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
                                 si=false;
                                 break;
