@@ -81,16 +81,17 @@ public class RobotMaze
             String cantPar = JOptionPane.showInputDialog("Cuantas paredes quieres colocar? (entre 0 y "+(tamaño-2)+")");
             if (cantPar != null){
                 cantPared = Integer.parseInt(cantPar);
-                
-                for(int i=0 ; i < cantPared; i++){
-                    if(putWall()){
-                    }else{
-                       i--;
+                if(cantPared <= (tamaño-2) && cantPared>= 0){
+                    for(int i=0 ; i < cantPared; i++){
+                        if(putWall()){
+                        }else{
+                           i--;
+                            }
                     }
                 }
             }
-            
-        }
+        }   
+        
 
         JOptionPane.showMessageDialog(null, "Se un buen fantasma y acaba con PacMan, intenta no chocar, si no, irás perdiendo todas tus vidas.");
         boolean si = true;
@@ -112,16 +113,32 @@ public class RobotMaze
                 String time = JOptionPane.showInputDialog("¿Cuántas veces?");
                 if(time !=null){
                     int times = Integer.parseInt(time);
-                    for(int i = 0; i< times; i++){
-                        if(validNextWall()){
-                            movingRobot(1);
+                    
+                    if (times > 0){
+                        for(int i = 0; i< times; i++){
+                            if(validNextWall()){
+                                movingRobot(1);
+                                robot.makeVisible();
+                                if(robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]){//
+                                    JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
+                                    si=false;
+                                    break;
+                                }      
+                            }else{
+                                break;
+                            }
+                        }
+                    }
+                    else{
+                        for(int i = 0; i < Math.abs(times); i++){
+                            if(!moveBack()){
+                                break;
+                            }
                             if(robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]){//
                                 JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
                                 si=false;
                                 break;
-                            }      
-                        }else{
-                            break;
+                            }
                         }
                     }
                 }
@@ -139,6 +156,8 @@ public class RobotMaze
                     JOptionPane.showMessageDialog(null, "Opcion invalida, solamente: (N, S, E, W)");
                 }else{    
                     turningRobot(direction);
+                    robot.makeVisible();
+
                 }              
             }else if (opcion == 2){
                 int va= getRobotsHealth();
@@ -154,8 +173,8 @@ public class RobotMaze
                 JOptionPane.showMessageDialog(null, "Corazones: "+getRobotsHealth());
                 
             }
-
         }
+        
     }
     
     /**
@@ -166,8 +185,16 @@ public class RobotMaze
         JOptionPane.showMessageDialog(null, "Escriba las coordenadas, Primero X y luego Y"); 
         String equis = JOptionPane.showInputDialog("X: ");
         String ye = JOptionPane.showInputDialog("Y:");
+        
+        if(equis == null || ye == null){
+            return false;
+        }
         int X = Integer.parseInt(equis);
         int Y = Integer.parseInt(ye);
+        if(X < 0 || Y < 0 || X > posicionesCuadrados[0].length -1 || Y > posicionesCuadrados[0].length - 1){
+            return false;
+        }
+        
         if(posicionesCuadrados[X][Y].getColor() == "white"){
             posicionesCuadrados[X][Y].changeColor("black");
             return true;
@@ -175,7 +202,7 @@ public class RobotMaze
             JOptionPane.showMessageDialog(null, "Opcion invalida, esta posicion ya esta ocupada");
             return false;
         }
-            
+             
     }
     
     
@@ -187,7 +214,6 @@ public class RobotMaze
         robot.makeInvisible();
         robot.move(times);
         robot.adaptTriangle(posicionesCuadrados[robot.coordinates()[0]][robot.coordinates()[1]].getColor());
-        robot.makeVisible();
     }
     
     /**
@@ -196,7 +222,6 @@ public class RobotMaze
      */
     public void turningRobot(char direction){
         robot.turn(direction);
-        robot.makeVisible();
 
     }
 
@@ -256,11 +281,17 @@ public class RobotMaze
         int posX=coords[0];
         int posY=coords[1];
         if((robot.direction() == 'N' && posY-1 < 0 )|| robot.direction() == 'W' && posX-1 < 0){
+            if(!robot.getIsVisible()){
+                robot.makeVisible();
+            }
             JOptionPane.showMessageDialog(null, "Movimiento te lleva fuera del mapa");
             return false;
         }
         else if(robot.direction() =='N'){
             if(posicionesCuadrados[posX][posY-1].getColor() == "black" || posicionesCuadrados[posX][posY-1].getColor() == "gray"){
+                if(!robot.getIsVisible()){
+                    robot.makeVisible();
+                }
                 robotWasDamaged();
                 posicionesCuadrados[posX][posY-1].changeColor("gray");
                 JOptionPane.showMessageDialog(null, "Auch, chocaste");
@@ -269,6 +300,9 @@ public class RobotMaze
             }
         else if(robot.direction() =='S'){
             if(posicionesCuadrados[posX][posY+1].getColor() == "black" || posicionesCuadrados[posX][posY+1].getColor() == "gray"){
+                if(!robot.getIsVisible()){
+                    robot.makeVisible();
+                }
                 robotWasDamaged();
                 posicionesCuadrados[posX][posY+1].changeColor("gray");
                 JOptionPane.showMessageDialog(null, "Auch, chocaste");
@@ -277,6 +311,9 @@ public class RobotMaze
             }
         else if(robot.direction() =='W'){
             if(posicionesCuadrados[posX-1][posY].getColor() == "black" || posicionesCuadrados[posX-1][posY].getColor() == "gray"){
+                if(!robot.getIsVisible()){
+                    robot.makeVisible();
+                }
                 robotWasDamaged();
                 posicionesCuadrados[posX-1][posY].changeColor("gray");
                 JOptionPane.showMessageDialog(null, "Auch, chocaste");
@@ -285,6 +322,9 @@ public class RobotMaze
         }                        
         else if(robot.direction() =='E'){
             if(posicionesCuadrados[posX+1][posY].getColor() == "black" || posicionesCuadrados[posX+1][posY].getColor() == "gray"){
+                if(!robot.getIsVisible()){
+                    robot.makeVisible();
+                }
                 robotWasDamaged();
                 posicionesCuadrados[posX+1][posY].changeColor("gray");
                 JOptionPane.showMessageDialog(null, "Auch, chocaste");
@@ -292,6 +332,42 @@ public class RobotMaze
             }
         }
         return true;
+    }
+    
+    /**
+     * It moves the Robot backs, it happens if the move is negative.
+     * @return if the move was done correctly and it can do another
+     */
+    
+    public boolean moveBack(){
+        robot.makeInvisible();
+        char originalDirection= robot.direction();
+        if(originalDirection == 'E'){
+            robot.turn('W');        
+        }
+        else if(originalDirection == 'W'){
+            robot.turn('E');
+        }
+        else if(originalDirection == 'S'){
+            robot.turn('N');
+        }
+        else{
+            robot.turn('S');
+        }
+        
+        if(validNextWall()){
+            robot.makeInvisible();
+            movingRobot(1);
+            turningRobot(originalDirection);
+            robot.makeVisible();
+
+            return true;
+        } else{
+            turningRobot(originalDirection);
+            robot.makeVisible();
+
+            return false;
+        }
     }
 }    
     
