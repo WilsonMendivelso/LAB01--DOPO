@@ -51,7 +51,7 @@ public class RobotMaze
                 }
                 
                 if(i==salida[0] && j==salida[1]){
-                    cuadrado.changeColor("yellow");
+                    putPacMan(salida[0], salida[1], (int)((pantalla-pantalla/tamaño+1)/tamaño));
                 }
                 
                 posicionesCuadrados[i][j]=cuadrado;
@@ -369,5 +369,16 @@ public class RobotMaze
             return false;
         }
     }
+/**
+* Puts in the exit place a PacMan that must be defeated.
+*/
+public void putPacMan(int i, int j, int tamaño){
+    Circle pacMan = new Circle();
+    pacMan.changeSize(tamaño);
+    pacMan.changeColor("yellow");
+    pacMan.moveHorizontal(1+(distanceMove/25)-CuerpoCircular[0].getCoordinates()[0]+tamaño*x);
+    pacMan.moveVertical((-1-CuerpoCircular[0].getCoordinates()[1]+tamaño*y));        
+    pacMan.makeVisible();
+    
 }    
     
