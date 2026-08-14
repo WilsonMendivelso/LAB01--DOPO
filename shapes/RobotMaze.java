@@ -42,23 +42,25 @@ public class RobotMaze
                 cuadrado.moveVertical(-cuadrado.getCoordinates()[1] + j*((int)((pantalla-pantalla/tamaño+1)/tamaño)));
                 cuadrado.changeSize((int)((pantalla-pantalla/tamaño+1)/tamaño), (int)((pantalla-pantalla/tamaño+1)/tamaño));
                 cuadrado.changeColor("white");
-                if(i==0 || j== 0 || i== tamaño || j==tamaño){
-                    cuadrado.changeColor("black");
-                }
-                
+
                 if(i==entrada[0] && j==entrada[1]){
                     cuadrado.changeColor("blue");
                 }
-                
-                if(i==salida[0] && j==salida[1]){
-                    putPacMan(salida[0], salida[1], (int)((pantalla-pantalla/tamaño+1)/tamaño));
+                else if(i==salida[0] && j==salida[1]){
+                    cuadrado.changeColor("white");
                 }
+                else if(i==0 || j== 0 || i== tamaño || j==tamaño){
+                    cuadrado.changeColor("black");
+                }
+                
+                
+                
                 
                 posicionesCuadrados[i][j]=cuadrado;
                 cuadrado.makeVisible();
             }
         }
-        
+        putPacMan(salida[0],salida[1],(int)((pantalla-pantalla/tamaño+1)/tamaño));
         robot = new Robot(0,0);
         robot.changePixelSize((int)((pantalla-pantalla/tamaño+1)/tamaño));
         if(entrada[0] !=0){
@@ -369,16 +371,42 @@ public class RobotMaze
             return false;
         }
     }
-/**
-* Puts in the exit place a PacMan that must be defeated.
-*/
-public void putPacMan(int i, int j, int tamaño){
-    Circle pacMan = new Circle();
-    pacMan.changeSize(tamaño);
-    pacMan.changeColor("yellow");
-    pacMan.moveHorizontal(1+(distanceMove/25)-CuerpoCircular[0].getCoordinates()[0]+tamaño*x);
-    pacMan.moveVertical((-1-CuerpoCircular[0].getCoordinates()[1]+tamaño*y));        
-    pacMan.makeVisible();
-    
-}    
+    /**
+    * Puts in the exit place a PacMan that must be defeated.
+    */
+    public void putPacMan(int i, int j, int tamaño){
+        Circle pacMan = new Circle();
+        pacMan.changeSize(tamaño-2);
+        pacMan.changeColor("yellow");
+        pacMan.moveHorizontal(((int)((500-500/tamaño+1)/tamaño)/25)-pacMan.getCoordinates()[0]+tamaño*i);
+        pacMan.moveVertical((-pacMan.getCoordinates()[1]+tamaño*j));        
+        pacMan.makeVisible();
+        
+        if(entrada[0] ==0 ){
+            Triangle bocaSup = new Triangle();
+            bocaSup.changeSize((tamaño-2)/2, ((tamaño-2)*3)/2);
+            bocaSup.changeColor("white");
+            bocaSup.moveHorizontal(-bocaSup.getCoordinates()[0] + pacMan.getCoordinates()[0] + (6*tamaño)/5);
+            bocaSup.moveVertical(-bocaSup.getCoordinates()[1] + pacMan.getCoordinates()[1]);
+            bocaSup.makeVisible();
+        
+            Triangle bocaInf = new Triangle();
+            bocaInf.changeSize(-(tamaño-2)/2, ((tamaño-2)*3)/2);
+            bocaInf.changeColor("white");
+            bocaInf.moveHorizontal(-bocaInf.getCoordinates()[0] + pacMan.getCoordinates()[0] + (6*tamaño)/5);
+            bocaInf.moveVertical(-bocaInf.getCoordinates()[1] + pacMan.getCoordinates()[1] + (tamaño-2));
+            bocaInf.makeVisible();
+            
+        }   
+        else if(entrada[1] ==0 ){
+            Triangle boca = new Triangle();
+            boca.changeSize(3*(tamaño-2)/4, 3*(tamaño-2)/4);
+            boca.changeColor("white");
+            boca.moveHorizontal(-boca.getCoordinates()[0] + pacMan.getCoordinates()[0] + (tamaño)/2);
+            boca.moveVertical(-boca.getCoordinates()[1] + pacMan.getCoordinates()[1] + (9*tamaño)/20);
+            boca.makeVisible();
+
+        }
+    }
+}
     

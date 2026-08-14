@@ -272,7 +272,7 @@ public class Robot{
 
         CuerpoCircular[2].changeSize((int)CuerpoCircular[0].getDiameter()/4);
 
-        CuerpoRectangular[0].changeSize((CuerpoCircular[0].getDiameter()*29/50),CuerpoCircular[0].getDiameter());
+        CuerpoRectangular[0].changeSize((CuerpoCircular[0].getDiameter()*14/25),CuerpoCircular[0].getDiameter());
     
         CuerpoTriangular[0].changeSize((CuerpoCircular[0].getDiameter()/5),(CuerpoCircular[0].getDiameter()*4/10));
         
