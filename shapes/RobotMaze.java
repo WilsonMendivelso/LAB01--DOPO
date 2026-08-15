@@ -225,7 +225,11 @@ public class RobotMaze
             
             for(int[] i: path){
                 if(Arrays.equals(prueba, i)){
-                    changePath(X,Y, path.indexOf(i));
+                    if(!(changePath(X,Y, path.indexOf(i)))){
+                        posicionesCuadrados[X][Y].changeColor("green"); //cambiar
+                        JOptionPane.showMessageDialog(null, "Opcion invalida, no es posible poner acá un muro");
+                        return false;
+                    }
                     break;
                 }
             }
@@ -524,183 +528,200 @@ public class RobotMaze
             }
         }
     }
-    public void changePath(int X, int Y, int idx){
-        int anteriorX = path.get(idx-1)[0];
-        int anteriorY = path.get(idx-1)[1];
+public boolean changePath(int X, int Y, int idx){
+    if(idx <= 0 || idx >= path.size()-1){
+        return false;
+    }
 
-        int siguienteX = path.get(idx+1)[0];
-        int siguienteY = path.get(idx+1)[1];
+    int anteriorX = path.get(idx-1)[0];
+    int anteriorY = path.get(idx-1)[1];
 
-    // El cuadrado negro ya no debe estar en el camino
-        path.remove(idx);
+    int siguienteX = path.get(idx+1)[0];
+    int siguienteY = path.get(idx+1)[1];
 
     /*
      * CASO 1:
      * El camino venia horizontalmente.
-     *
-     * anterior -> NEGRO -> siguiente
      */
-        if(anteriorY == Y && siguienteY == Y){
+    if(anteriorY == Y && siguienteY == Y){
 
         // Intentamos pasar por arriba
-            if(Y-1 >= 0 &&
-               !posicionesCuadrados[anteriorX][Y-1].getColor().equals("black") &&
-               !posicionesCuadrados[X][Y-1].getColor().equals("black") &&
-               !posicionesCuadrados[siguienteX][Y-1].getColor().equals("black")){
+        if(Y-1 >= 0 &&
+           !posicionesCuadrados[anteriorX][Y-1].getColor().equals("black") &&
+           !posicionesCuadrados[X][Y-1].getColor().equals("black") &&
+           !posicionesCuadrados[siguienteX][Y-1].getColor().equals("black")){
 
-                int[] temp1 = {anteriorX, Y-1};
-                int[] temp2 = {X, Y-1};
-                int[] temp3 = {siguienteX, Y-1};
+            path.remove(idx);
 
-                path.add(idx, temp1);
-                path.add(idx+1, temp2);
-                path.add(idx+2, temp3);
-            }
+            int[] temp1 = {anteriorX, Y-1};
+            int[] temp2 = {X, Y-1};
+            int[] temp3 = {siguienteX, Y-1};
 
-        // Si arriba esta bloqueado, intentamos abajo
-            else if(Y+1 < posicionesCuadrados[0].length &&
-                    !posicionesCuadrados[anteriorX][Y+1].getColor().equals("black") &&
-                    !posicionesCuadrados[X][Y+1].getColor().equals("black") &&
-                    !posicionesCuadrados[siguienteX][Y+1].getColor().equals("black")){
+            path.add(idx, temp1);
+            path.add(idx+1, temp2);
+            path.add(idx+2, temp3);
 
-                int[] temp1 = {anteriorX, Y+1};
-                int[] temp2 = {X, Y+1};
-                int[] temp3 = {siguienteX, Y+1};
-
-                path.add(idx, temp1);
-                path.add(idx+1, temp2);
-                path.add(idx+2, temp3);
-            }
-
-        // Si hay dos paredes juntas arriba/abajo,
-        // buscamos una vuelta de dos cuadrados.
-            else if(Y-1 >= 0 &&
-                    Y-2 >= 0 &&
-                    !posicionesCuadrados[anteriorX][Y-1].getColor().equals("black") &&
-                    !posicionesCuadrados[anteriorX][Y-2].getColor().equals("black")){
-
-                int[] temp1 = {anteriorX, Y-1};
-                int[] temp2 = {anteriorX, Y-2};
-                int[] temp3 = {X, Y-2};
-                int[] temp4 = {siguienteX, Y-2};
-                int[] temp5 = {siguienteX, Y-1};
-
-                path.add(idx, temp1);
-                path.add(idx+1, temp2);
-                path.add(idx+2, temp3);
-                path.add(idx+3, temp4);
-                path.add(idx+4, temp5);
-            }
-    
-            else if(Y+1 < posicionesCuadrados[0].length &&
-                    Y+2 < posicionesCuadrados[0].length &&
-                    !posicionesCuadrados[anteriorX][Y+1].getColor().equals("black") &&
-                    !posicionesCuadrados[anteriorX][Y+2].getColor().equals("black")){
-
-                int[] temp1 = {anteriorX, Y+1};
-                int[] temp2 = {anteriorX, Y+2};
-                int[] temp3 = {X, Y+2};
-                int[] temp4 = {siguienteX, Y+2};
-                int[] temp5 = {siguienteX, Y+1};
-
-                path.add(idx, temp1);
-                path.add(idx+1, temp2);
-                path.add(idx+2, temp3);
-                path.add(idx+3, temp4);
-                path.add(idx+4, temp5);
-            }
+            return true;
         }
+
+        // Intentamos pasar por abajo
+        else if(Y+1 < posicionesCuadrados[0].length &&
+                !posicionesCuadrados[anteriorX][Y+1].getColor().equals("black") &&
+                !posicionesCuadrados[X][Y+1].getColor().equals("black") &&
+                !posicionesCuadrados[siguienteX][Y+1].getColor().equals("black")){
+
+            path.remove(idx);
+
+            int[] temp1 = {anteriorX, Y+1};
+            int[] temp2 = {X, Y+1};
+            int[] temp3 = {siguienteX, Y+1};
+
+            path.add(idx, temp1);
+            path.add(idx+1, temp2);
+            path.add(idx+2, temp3);
+
+            return true;
+        }
+
+        // Intentamos dar una vuelta por arriba
+        else if(Y-1 >= 0 &&
+                Y-2 >= 0 &&
+                !posicionesCuadrados[anteriorX][Y-1].getColor().equals("black") &&
+                !posicionesCuadrados[anteriorX][Y-2].getColor().equals("black") &&
+                !posicionesCuadrados[X][Y-2].getColor().equals("black") &&
+                !posicionesCuadrados[siguienteX][Y-2].getColor().equals("black")){
+
+            path.remove(idx);
+
+            int[] temp1 = {anteriorX, Y-1};
+            int[] temp2 = {anteriorX, Y-2};
+            int[] temp3 = {X, Y-2};
+            int[] temp4 = {siguienteX, Y-2};
+            int[] temp5 = {siguienteX, Y-1};
+
+            path.add(idx, temp1);
+            path.add(idx+1, temp2);
+            path.add(idx+2, temp3);
+            path.add(idx+3, temp4);
+            path.add(idx+4, temp5);
+
+            return true;
+        }
+
+        // Intentamos dar una vuelta por abajo
+        else if(Y+1 < posicionesCuadrados[0].length &&
+                Y+2 < posicionesCuadrados[0].length &&
+                !posicionesCuadrados[anteriorX][Y+1].getColor().equals("black") &&
+                !posicionesCuadrados[anteriorX][Y+2].getColor().equals("black") &&
+                !posicionesCuadrados[X][Y+2].getColor().equals("black") &&
+                !posicionesCuadrados[siguienteX][Y+2].getColor().equals("black")){
+
+            path.remove(idx);
+
+            int[] temp1 = {anteriorX, Y+1};
+            int[] temp2 = {anteriorX, Y+2};
+            int[] temp3 = {X, Y+2};
+            int[] temp4 = {siguienteX, Y+2};
+            int[] temp5 = {siguienteX, Y+1};
+
+            path.add(idx, temp1);
+            path.add(idx+1, temp2);
+            path.add(idx+2, temp3);
+            path.add(idx+3, temp4);
+            path.add(idx+4, temp5);
+
+            return true;
+        }
+    }
 
     /*
      * CASO 2:
      * El camino venia verticalmente.
-     *
-     *      anterior
-     *         |
-     *       NEGRO
-     *         |
-     *      siguiente
      */
-        else if(anteriorX == X && siguienteX == X){
+    else if(anteriorX == X && siguienteX == X){
 
         // Intentamos pasar por la izquierda
-            if(X-1 >= 0 &&
-               !posicionesCuadrados[X-1][anteriorY].getColor().equals("black") &&
-               !posicionesCuadrados[X-1][Y].getColor().equals("black") &&
-               !posicionesCuadrados[X-1][siguienteY].getColor().equals("black")){
+        if(X-1 >= 0 &&
+           !posicionesCuadrados[X-1][anteriorY].getColor().equals("black") &&
+           !posicionesCuadrados[X-1][Y].getColor().equals("black") &&
+           !posicionesCuadrados[X-1][siguienteY].getColor().equals("black")){
 
-                int[] temp1 = {X-1, anteriorY};
-                int[] temp2 = {X-1, Y};
-                int[] temp3 = {X-1, siguienteY};
+            path.remove(idx);
 
-                path.add(idx, temp1);
-                path.add(idx+1, temp2);
-                path.add(idx+2, temp3);
-            }
+            int[] temp1 = {X-1, anteriorY};
+            int[] temp2 = {X-1, Y};
+            int[] temp3 = {X-1, siguienteY};
 
-        // Si izquierda esta bloqueada, intentamos derecha
-            else if(X+1 < posicionesCuadrados.length &&
+            path.add(idx, temp1);
+            path.add(idx+1, temp2);
+            path.add(idx+2, temp3);
+
+            return true;
+        }
+
+        // Intentamos pasar por la derecha
+        else if(X+1 < posicionesCuadrados.length &&
                 !posicionesCuadrados[X+1][anteriorY].getColor().equals("black") &&
                 !posicionesCuadrados[X+1][Y].getColor().equals("black") &&
                 !posicionesCuadrados[X+1][siguienteY].getColor().equals("black")){
 
-                int[] temp1 = {X+1, anteriorY};
-                int[] temp2 = {X+1, Y};
-                int[] temp3 = {X+1, siguienteY};
+            path.remove(idx);
 
-                path.add(idx, temp1);
-                path.add(idx+1, temp2);
-                path.add(idx+2, temp3);
-            }
+            int[] temp1 = {X+1, anteriorY};
+            int[] temp2 = {X+1, Y};
+            int[] temp3 = {X+1, siguienteY};
+
+            path.add(idx, temp1);
+            path.add(idx+1, temp2);
+            path.add(idx+2, temp3);
+
+            return true;
         }
+    }
 
     /*
      * CASO 3:
      * El camino llega a una esquina.
-     *
-     * anterior
-     *    |
-     *  NEGRO -> siguiente
      */
-        else if(anteriorX == X){
+    else if(anteriorX == X){
+
+        if(anteriorX+1 < posicionesCuadrados.length &&
+           !posicionesCuadrados[anteriorX+1][anteriorY].getColor().equals("black") &&
+           !posicionesCuadrados[anteriorX+1][Y].getColor().equals("black")){
+
+            path.remove(idx);
 
             int[] temp1 = {anteriorX+1, anteriorY};
             int[] temp2 = {anteriorX+1, Y};
-            int[] temp3 = {siguienteX, Y};
 
-            if(anteriorX+1 < posicionesCuadrados.length &&
-               !posicionesCuadrados[anteriorX+1][anteriorY].getColor().equals("black") &&
-               !posicionesCuadrados[anteriorX+1][Y].getColor().equals("black")){
+            path.add(idx, temp1);
+            path.add(idx+1, temp2);
 
-                path.add(idx, temp1);
-                path.add(idx+1, temp2);
-            }
-        }
-
-        else if(anteriorY == Y){
-
-            int[] temp1 = {anteriorX, anteriorY+1};
-            int[] temp2 = {X, anteriorY+1};
-            int[] temp3 = {X, siguienteY};
-
-            if(anteriorY+1 < posicionesCuadrados[0].length &&
-               !posicionesCuadrados[anteriorX][anteriorY+1].getColor().equals("black") &&
-               !posicionesCuadrados[X][anteriorY+1].getColor().equals("black")){
-
-                path.add(idx, temp1);
-                path.add(idx+1, temp2);
-            }
-        }
-
-        // Guia
-        for(int[] i: path){
-            if(!posicionesCuadrados[i[0]][i[1]].getColor().equals("black")){
-                posicionesCuadrados[i[0]][i[1]].changeColor("green");
-            }
-            posicionesCuadrados[i[0]][i[1]].makeVisible();
+            return true;
         }
     }
 
+    else if(anteriorY == Y){
+
+        if(anteriorY+1 < posicionesCuadrados[0].length &&
+           !posicionesCuadrados[anteriorX][anteriorY+1].getColor().equals("black") &&
+           !posicionesCuadrados[X][anteriorY+1].getColor().equals("black")){
+
+            path.remove(idx);
+
+            int[] temp1 = {anteriorX, anteriorY+1};
+            int[] temp2 = {X, anteriorY+1};
+
+            path.add(idx, temp1);
+            path.add(idx+1, temp2);
+
+            return true;
+        }
+    }
+
+    // No existe ningún caso que sepamos resolver
+    return false;
+}
     private int selectRandInt(int infLimit, int supLimit){
         int numeroRand = infLimit +(int)(Math.random()*supLimit);
         return numeroRand;
