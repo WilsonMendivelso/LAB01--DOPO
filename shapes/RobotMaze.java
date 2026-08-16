@@ -11,22 +11,28 @@ import java.util.List;
  * @version 1.0
  */
 public class RobotMaze {
-    Canvas tablero;
-    Robot robot;
-    int[] entrada;
-    int[] salida;
-    Rectangle[][] posicionesCuadrados;
-    ArrayList<int[]> path;
-
+    private Canvas tablero;
+    private Robot robot;
+    private int[] entrada;
+    private int[] salida;
+    private Rectangle[][] posicionesCuadrados;
+    private ArrayList<int[]> path;
+    private boolean continuar;
+    
+    private ArrayList<int[]> pathTraveled;
+    private ArrayList<Character> lastChar;
+    private ArrayList<Boolean> crashesIntoAWall;
+    
+    
     /**
      * Constructor for objects of class RobotMaze
      */
     public RobotMaze() {
         tablero = Canvas.getCanvas();
         int tamaño = 5;
-        while (tamaño < 10 || tamaño > 21) {
-            String tamLab = JOptionPane.showInputDialog("Tamaño del laberinto (entre 10 y 20)");
-            if (tamLab != null || tamLab.length() != 0) {
+        while (tamaño < 11 || tamaño > 22) {
+            String tamLab = JOptionPane.showInputDialog("Tamaño del laberinto (entre 10 y 21)");
+            if (tamLab != null && tamLab.length() != 0) {
                 tamaño = 1 + Integer.parseInt(tamLab);
             }
         }
@@ -99,12 +105,26 @@ public class RobotMaze {
         createLabyrinth();
 
         JOptionPane.showMessageDialog(null, "Se un buen fantasma y acaba con PacMan, intenta no chocar, si no, irás perdiendo todas tus vidas.");
-        boolean si = true;
+        continuar = true;
+        pathTraveled = new ArrayList<>();
+        pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+        
+        lastChar = new ArrayList<>();
+        lastChar.add('N');
+        
+        crashesIntoAWall = new ArrayList<>();
+        crashesIntoAWall.add(false);
+        
 
 
-        while (robot.isOk() && si) {
-            String[] opciones = {"Moverse", "Cambiar dirección", "Terminar el juego", "Mostrar vida"};
-
+        while (robot.isOk() && continuar) {
+            String[] opciones;
+            if(pathTraveled.size() > 1){
+                opciones =new String[] {"Moverse", "Cambiar dirección", "Terminar el juego", "Mostrar vida", "Haz un buen movimiento","Devolverse"};
+            }
+            else{
+                opciones =new String[] {"Moverse", "Cambiar dirección", "Terminar el juego", "Mostrar vida", "Haz un buen movimiento"};
+            }
             int opcion = JOptionPane.showOptionDialog(
                     tablero.getJPanel(),
                     "¿Qué deseas hacer?",
@@ -115,73 +135,407 @@ public class RobotMaze {
                     opciones,
                     "Moverse");
             if (opcion == 0) {
-                String time = JOptionPane.showInputDialog("¿Cuántas veces?");
-                if (time != null) {
-                    int times = Integer.parseInt(time);
-
-                    if (times > 0) {
-                        for (int i = 0; i < times; i++) {
-                            if (validNextWall()) {
-                                movingRobot(1);
-                                robot.makeVisible();
-                                if (robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]) {
-                                    JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
-                                    si = false;
-                                    break;
-                                }
-                            } else {
-                                break;
-                            }
-                        }
-                    } else {
-                        for (int i = 0; i < Math.abs(times); i++) {
-                            if (!moveBack()) {
-                                break;
-                            }
-                            if (robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]) {
-                                    JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
-                                si = false;
-                                break;
-                            }
-                        }
-                    }
-                }
+                doOption0();
             } else if (opcion == 1) {
-                String dir = JOptionPane.showInputDialog("¿Hacia cuál dirección? ");
-                char direction;
-                if (dir == null) {
-                    direction = 'L';
-                } else {
-                    direction = dir.charAt(0);
-                }
-                if (direction != 'W' && direction != 'S' && direction != 'N' && direction != 'E') {
-                    JOptionPane.showMessageDialog(null, "Opcion invalida, solamente: (N, S, E, W)");
-                } else {
-                    turningRobot(direction);
-                    robot.makeVisible();
-
-                }
+                doOption1();
             } else if (opcion == 2) {
-                int va = getRobotsHealth();
-                for (int i = 0; i < (va); i++) {
-                    robotWasDamaged();
-                }
-                robot.makeVisibleDeathRobot();
-                JOptionPane.showMessageDialog(null, "¡Termino el juego! :( ");
-                si = false;
-                break;
+                doOption2();
 
             } else if (opcion == 3) {
-                JOptionPane.showMessageDialog(null, "Corazones: " + getRobotsHealth());
+                doOption3();
 
+            }else if(opcion ==4){
+                doOption4();
+            }
+            else if (opcion ==5){
+                doOption5();
             }
         }
-
     }
-
+    
+    
     /**
-     * put a Wall in the board
-     * @return boolean for the cycle of cantPared
+     * It's the option 5 from the option list. It does all the things about return a movement.
+     */
+    
+    public void doOption5(){
+        int posX = robot.coordinates()[0];
+        int posY = robot.coordinates()[1];
+                    
+        while((posX == robot.coordinates()[0] && posY == robot.coordinates()[1])  && crashesIntoAWall.size() > 1){
+            returned();
+                    
+        }
+    }
+    /**
+     * It's the option 4 from the options list. It does all the things about to have a good movement.
+     */
+    public void doOption4(){
+        if(entrada[0] == robot.coordinates()[0] && entrada[1] == robot.coordinates()[1]){
+            if(entrada[0] == 0){
+                turningRobot('E');
+                pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                lastChar.add('E');
+                crashesIntoAWall.add(false); 
+                
+                movingRobot(1);
+                robot.makeVisible();
+                pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                lastChar.add(robot.direction());
+                crashesIntoAWall.add(false);
+            }
+            else if(entrada[1] == 0){
+                turningRobot('S');
+                pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                lastChar.add('S');
+                crashesIntoAWall.add(false);    
+            
+                movingRobot(1);
+                robot.makeVisible();
+                pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                lastChar.add(robot.direction());
+                crashesIntoAWall.add(false);
+            }
+        }                                                                               
+        else if(esParteDelCamino(robot.coordinates()[0], robot.coordinates()[1])){
+            if(salida[0] == robot.coordinates()[0] + 1 && salida[1] == robot.coordinates()[1]){
+                turningRobot('E');
+                movingRobot(1);
+                robot.makeVisible();
+            
+                JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
+                continuar = false;
+                return;
+            }
+            else if(salida[1] == robot.coordinates()[1] + 1 && salida[0] == robot.coordinates()[0]){
+                turningRobot('S');
+                movingRobot(1);
+                robot.makeVisible();
+            
+                JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
+                continuar = false;
+                return;
+            }
+            else{
+                int idx = 0;
+                for(int i = 0; i < path.size(); i++){
+                    if(robot.coordinates()[0] == path.get(i)[0] && robot.coordinates()[1] == path.get(i)[1]){
+                        idx = i;
+                        break;
+                    }
+                }
+            
+                int newPosX = path.get(idx +1)[0];
+                int newPosY = path.get(idx +1)[1];
+            
+                if(newPosX != robot.coordinates()[0]){
+                    if(newPosX -1== robot.coordinates()[0]){
+                        turningRobot('E');
+                        pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                        lastChar.add('E');
+                        crashesIntoAWall.add(false); 
+            
+                        movingRobot(1);
+                        robot.makeVisible();
+                        pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                        lastChar.add(robot.direction());
+                        crashesIntoAWall.add(false);
+                    }
+                    else{
+                        turningRobot('W');
+                        pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                        lastChar.add('W');
+                        crashesIntoAWall.add(false); 
+            
+                        movingRobot(1);
+                        robot.makeVisible();
+                        pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                        lastChar.add(robot.direction());
+                        crashesIntoAWall.add(false);
+                    }
+                }
+                else{
+                    if(newPosY +1== robot.coordinates()[1]){
+                        turningRobot('N');
+                         pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                        lastChar.add('N');
+                        crashesIntoAWall.add(false); 
+            
+                        movingRobot(1);
+                        robot.makeVisible();
+                        pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                        lastChar.add(robot.direction());
+                        crashesIntoAWall.add(false);
+                    }
+                    else{
+                        turningRobot('S');
+                        pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                        lastChar.add('S');
+                        crashesIntoAWall.add(false); 
+            
+                        movingRobot(1);
+                        robot.makeVisible();
+                        pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                        lastChar.add(robot.direction());
+                        crashesIntoAWall.add(false);
+                    }
+                } 
+            }
+        }
+        else{
+            moveNearPath();
+        }
+    }
+    /**
+     * It's the option 3 from the options list. It gives the Robot's health.
+     */
+    public void doOption3(){
+        JOptionPane.showMessageDialog(null, "Corazones: " + getRobotsHealth());
+    }
+    
+    /**
+     * It's the option 2 from the options list. It ends the game if the user wants to.
+     */
+    public void doOption2(){  
+        int va = getRobotsHealth();
+        for (int i = 0; i < (va); i++) {
+            robotWasDamaged();
+        }
+        robot.makeVisibleDeathRobot();
+        JOptionPane.showMessageDialog(null, "¡Terminó el juego! :( ");
+        continuar = false;
+    }
+    /**
+     * It's the option 1 from the options list. This changes the Robot's direction
+     */
+    public void doOption1(){
+        String dir = JOptionPane.showInputDialog("¿Hacia cuál dirección? ");
+        char direction;
+        if (dir == null) {
+            direction = 'L';
+        } else {
+            direction = dir.charAt(0);
+        }
+        if(direction == robot.direction()){
+           return;
+        }
+        else if (direction != 'W' && direction != 'S' && direction != 'N' && direction != 'E') {
+            JOptionPane.showMessageDialog(null, "Opcion invalida, solamente: (N, S, E, W)");
+        } else {
+            turningRobot(direction);
+            pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+            lastChar.add(direction);
+            crashesIntoAWall.add(false);                    
+            robot.makeVisible();
+
+        }
+    }
+    
+    /**
+     * It's the option 0 from the options list. This moves the Robot n moves.
+     */
+    public void doOption0() {
+        String time = JOptionPane.showInputDialog("¿Cuántas veces?");
+        if (time != null && time.length() != 0) {
+            int times = Integer.parseInt(time);
+
+            if (times > 0) {
+                for (int i = 0; i < times; i++) {
+                    if (validNextWall()) {
+                        movingRobot(1);
+                        robot.makeVisible();
+                        pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                        lastChar.add(robot.direction());
+                        crashesIntoAWall.add(false);
+                        moveNearPath();
+                        if (robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]) {
+                            JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
+                            continuar = false;
+                            return;
+                        }
+                    } else {
+                        pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+                        lastChar.add(robot.direction());
+                        crashesIntoAWall.add(true);
+                        moveNearPath();
+                        return;
+                    }
+                }
+            } else {
+                for (int i = 0; i < Math.abs(times); i++) {
+                    if (!moveBack()) {
+                        return;
+                    }
+                    moveNearPath();
+                    if (robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]) {
+                        JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
+                        continuar = false;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    /**
+     * This function moves the Robot a little bit closer to the original path.
+     */
+    
+    public void moveNearPath() {
+        robot.makeInvisible();
+
+        int otherIdx = pathTraveled.size() - 1;
+
+        while (otherIdx > 0) {
+            int puntoAx = robot.coordinates()[0];
+            int puntoAy = robot.coordinates()[1];
+
+            boolean enCamino = false;
+            for (int[] p : path) {
+                if (p[0] == puntoAx && p[1] == puntoAy) {
+                    enCamino = true;
+                    break;
+                }
+            }
+
+            if (enCamino) {
+                break;
+            }
+
+            int[] coordenadas= pathTraveled.get(otherIdx - 1);
+            boolean crashed = crashesIntoAWall.get(otherIdx);
+
+            if (crashed) {
+                if (robot.getHealth() != 10){
+                    robotIsHealthed();
+                }
+                char prevDir = lastChar.get(otherIdx - 1);
+                turningRobot(prevDir);
+
+                pathTraveled.add(new int[]{puntoAx, puntoAy});
+                lastChar.add(prevDir);
+                crashesIntoAWall.add(false);
+            } else if (coordenadas[0] == puntoAx && coordenadas[1] == puntoAy) {
+                char prevDir = lastChar.get(otherIdx - 1);
+                turningRobot(prevDir);
+
+                pathTraveled.add(new int[]{puntoAx, puntoAy});
+                lastChar.add(prevDir);
+                crashesIntoAWall.add(false);
+            } else {
+                char disDesde = 'N';
+                if (puntoAx > coordenadas[0]){
+                    disDesde = 'E';
+                }
+                else if (puntoAx < coordenadas[0]) {
+                    disDesde = 'W';
+                }
+                else if (puntoAy > coordenadas[1]) {
+                    disDesde = 'S';
+                }
+                else if (puntoAy < coordenadas[1]) {
+                    disDesde = 'N';
+                }
+
+                char dirHacia = 'N';
+                if (coordenadas[0] > puntoAx){ 
+                    dirHacia = 'E';
+                }
+                else if (coordenadas[0] < puntoAx){ 
+                    dirHacia = 'W';
+                }
+                else if (coordenadas[1] > puntoAy){ 
+                    dirHacia = 'S';
+                }
+                else if (coordenadas[1] < puntoAy){
+                    dirHacia = 'N';
+                }
+
+                turningRobot(disDesde);
+                moveBack();
+
+                turningRobot(dirHacia);
+
+                pathTraveled.add(new int[]{coordenadas[0], coordenadas[1]});
+                lastChar.add(dirHacia);
+                crashesIntoAWall.add(false);
+            }
+
+            otherIdx--;
+        }
+
+        robot.makeVisible();
+    }
+    /**
+     * This function returns the Robot to its last position.
+     */
+    public void returned(){
+  
+        if(pathTraveled.size() > 1){
+            robot.makeInvisible();
+            int len = pathTraveled.size();
+            int puntoAx = robot.coordinates()[0];
+            int puntoAy = robot.coordinates()[1];
+            int[] lastCoords = pathTraveled.get(len-2);
+        
+        
+            if(lastCoords[1] == puntoAy && lastCoords[0] == puntoAx && crashesIntoAWall.get(len-1)){
+                pathTraveled.remove(len-1);
+                turningRobot(lastChar.get(len-1));
+                if(robot.direction() == 'N' && robot.coordinates()[1]-1 >=0){
+                    posicionesCuadrados[robot.coordinates()[0]][robot.coordinates()[1]-1].changeColor("black");
+                }
+                else if(robot.direction() == 'S'){
+                    posicionesCuadrados[robot.coordinates()[0]][robot.coordinates()[1]+1].changeColor("black");
+                }
+                else if(robot.direction() == 'W' && robot.coordinates()[0]-1 >=0){
+                    posicionesCuadrados[robot.coordinates()[0]-1][robot.coordinates()[1]].changeColor("black");
+                }else if(robot.direction() == 'E'){
+                    posicionesCuadrados[robot.coordinates()[0]+1][robot.coordinates()[1]].changeColor("black");
+                }
+                lastChar.remove(len-1);
+                robotIsHealthed();
+                crashesIntoAWall.remove(len-1);
+                
+            }
+            else if(lastCoords[1] == puntoAy && lastCoords[0] == puntoAx && !crashesIntoAWall.get(len-1)){
+                pathTraveled.remove(len-1);
+                turningRobot(lastChar.get(len-2));
+                lastChar.remove(len-1);
+                crashesIntoAWall.remove(len-1);
+            }
+            else if (lastCoords[1]==puntoAy){
+                if(lastCoords[0]+1==puntoAx){
+                    moveBack();
+                }else{
+                    moveBack();
+                }
+                pathTraveled.remove(len-1);
+                turningRobot(lastChar.get(len-2));
+                lastChar.remove(len-1);
+                crashesIntoAWall.remove(len-1);
+            }
+        
+            else if (lastCoords[0]==puntoAx){
+                if(lastCoords[1]-1==puntoAy){
+                    
+                    moveBack();
+                }else{
+                    turningRobot(lastChar.get(len-1));
+                    moveBack();
+                }
+                pathTraveled.remove(len-1);
+                turningRobot(lastChar.get(len-2));
+                lastChar.remove(len-1);
+                crashesIntoAWall.remove(len-1);
+            }
+            robot.makeVisible();
+        }
+        
+    }
+    
+    /**
+     * put a Wall on the board
+     * @return a boolean for the cycle of cantPared
      */
     public boolean putWall() {
         JOptionPane.showMessageDialog(null, "Escriba las coordenadas, Primero X y luego Y");
@@ -272,7 +626,13 @@ public class RobotMaze {
         robot.lessOneHearth();
     }
 
-
+    /**
+     * If robot is cured it will increase it health by one.
+     */
+    public void robotIsHealthed(){
+        robot.plusOneHearth();
+    }
+    
     /**
      * Generates the Entry and the Exit of the map.
      */
@@ -315,6 +675,7 @@ public class RobotMaze {
 
     /**
      * Checks if next direction is a valid direction to be moved
+     * @return if the next wall is valid
      */
     public boolean validNextWall() {
         int[] coords = robot.coordinates();
@@ -405,6 +766,9 @@ public class RobotMaze {
 
     /**
      * Puts in the exit place a PacMan that must be defeated.
+     * @param i is the XPosition on the board, where pacMan will be placed.
+     * @param j is the YPosition on the board, where pacMan will be placed.
+     * @param tamaño is the PacMan's size.
      */
     public void putPacMan(int i, int j, int tamaño) {
         Circle pacMan = new Circle();
@@ -443,147 +807,147 @@ public class RobotMaze {
      * It creates the path that goes from Entry to the Exit, this path won't be seen by the user, besides, with this method we know that there's a win possibility.
      */
     public void createPath() {
-        path = new ArrayList<>();
-        int limit = posicionesCuadrados.length - 2;
+	    path = new ArrayList<>();
+	    int limit = posicionesCuadrados.length - 2;
 
-        int rand = selectRandInt(1, 3); 
-        int numTramos = 0;
-        if (rand == 1) {
-            numTramos = 5;
-        } else if (rand == 2) {
-            numTramos =7;
-        } else {
-            numTramos = 9;
-        }
+	    int rand = selectRandInt(1, 3); 
+	    int numTramos = 0;
+	    if (rand == 1) {
+	        numTramos = 5;
+	    } else if (rand == 2) {
+	        numTramos =7;
+	    } else {
+	        numTramos = 9;
+	    }
 
-        int tramosEjePrincipal = (numTramos + 1) / 2;
-        int tramosEjeSecundario = numTramos / 2;
+	    int tramosEjePrincipal = (numTramos + 1) / 2;
+	    int tramosEjeSecundario = numTramos / 2;
 
-        //Mapa: Izquierda a derecha
-        if (entrada[0] == 0) {
-            int currentX = entrada[0];
-            int currentY = entrada[1];
+	    //Mapa: Izquierda a derecha
+	    if (entrada[0] == 0) {
+	        int currentX = entrada[0];
+	        int currentY = entrada[1];
 
-            int remainingX = limit;
-            int[] pasosX = new int[tramosEjePrincipal];
+	        int remainingX = limit;
+	        int[] pasosX = new int[tramosEjePrincipal];
 
-            int mitad = limit / 3;
-            if (mitad < 2) {
-                mitad = 2;
-            }
-            pasosX[0] = selectRandInt(2, mitad);
-            remainingX = remainingX - pasosX[0];
+	        int mitad = limit / 3;
+	        if (mitad < 2) {
+	            mitad = 2;
+	        }
+	        pasosX[0] = selectRandInt(2, mitad);
+	        remainingX = remainingX - pasosX[0];
 
-            for (int i = 1; i < tramosEjePrincipal - 1; i++) {
-                int maxRango = remainingX - (2 * (tramosEjePrincipal - 1 - i));
-                if (maxRango < 2) {
-                    maxRango = 2;
-                }
-                int paso = selectRandInt(2, maxRango);
-                pasosX[i] = paso;
-                remainingX = remainingX - paso;
-            }
-            pasosX[tramosEjePrincipal - 1] = remainingX;
+	        for (int i = 1; i < tramosEjePrincipal - 1; i++) {
+	            int maxRango = remainingX - (2 * (tramosEjePrincipal - 1 - i));
+	            if (maxRango < 2) {
+	                maxRango = 2;
+	            }
+	            int paso = selectRandInt(2, maxRango);
+	            pasosX[i] = paso;
+	            remainingX = remainingX - paso;
+	        }
+	        pasosX[tramosEjePrincipal - 1] = remainingX;
 
-            for (int step = 0; step < tramosEjeSecundario; step++) {
-                for (int i = 0; i < pasosX[step]; i++) {
-                    currentX = currentX + 1;
-                    int[] pareja = {currentX, currentY};
-                    path.add(pareja);
-                }
+	        for (int step = 0; step < tramosEjeSecundario; step++) {
+	            for (int i = 0; i < pasosX[step]; i++) {
+	                currentX = currentX + 1;
+	                int[] pareja = {currentX, currentY};
+	                path.add(pareja);
+	            }
 
-                int targetY = 0;
-                if (step == tramosEjeSecundario - 1) {
-                    targetY = salida[1]; 
-                } else {
-                    targetY = selectRandInt(1, limit);
-                    while (targetY == currentY || targetY == salida[1]) {
-                        targetY = selectRandInt(1, limit);
-                    }
-                }
+	            int targetY = 0;
+	            if (step == tramosEjeSecundario - 1) {
+	                targetY = salida[1]; 
+	            } else {
+	                targetY = selectRandInt(1, limit);
+	                while (targetY == currentY || targetY == salida[1]) {
+	                    targetY = selectRandInt(1, limit);
+	                }
+	            }
 
-                int dirY = 1;
-                if (targetY < currentY) {
-                    dirY = -1; 
-                }
+	            int dirY = 1;
+	            if (targetY < currentY) {
+	                dirY = -1; 
+	            }
 
-                int moveY = Math.abs(targetY - currentY);
-                for (int i = 0; i < moveY; i++) {
-                    currentY = currentY + dirY;
-                    int[] pareja = {currentX, currentY};
-                    path.add(pareja);
-                }
-            }
+	            int moveY = Math.abs(targetY - currentY);
+	            for (int i = 0; i < moveY; i++) {
+	                currentY = currentY + dirY;
+	                int[] pareja = {currentX, currentY};
+	                path.add(pareja);
+	            }
+	        }
 
-            for (int i = 0; i < pasosX[tramosEjePrincipal - 1]; i++) {
-                currentX = currentX + 1;
-                int[] pareja = {currentX, currentY};
-                path.add(pareja);
-            }
+	        for (int i = 0; i < pasosX[tramosEjePrincipal - 1]; i++) {
+	            currentX = currentX + 1;
+	            int[] pareja = {currentX, currentY};
+	            path.add(pareja);
+	        }
 
-        }
-        //Mapa arriba-abajo
-        else if (entrada[1] == 0) {
-            int currentX = entrada[0];
-            int currentY = entrada[1];
+	    }
+	    //Mapa arriba-abajo
+	    else if (entrada[1] == 0) {
+	        int currentX = entrada[0];
+	        int currentY = entrada[1];
 
-            int remainingY = limit;
-            int[] pasosY = new int[tramosEjePrincipal];
+	        int remainingY = limit;
+	        int[] pasosY = new int[tramosEjePrincipal];
 
-            int mitad = limit / 2;
-            if (mitad < 2) {
-                mitad = 2;
-            }
-            pasosY[0] = selectRandInt(2, mitad);
-            remainingY = remainingY - pasosY[0];
+	        int mitad = limit / 2;
+	        if (mitad < 2) {
+	            mitad = 2;
+	        }
+	        pasosY[0] = selectRandInt(2, mitad);
+	        remainingY = remainingY - pasosY[0];
 
-            for (int i = 1; i < tramosEjePrincipal - 1; i++) {
-                int maxRango = remainingY - (2 * (tramosEjePrincipal - 1 - i));
-                if (maxRango < 2) {
-                    maxRango = 2;
-                }
-                int paso = selectRandInt(2, maxRango);
-                pasosY[i] = paso;
-                remainingY = remainingY - paso;
-            }
-            pasosY[tramosEjePrincipal - 1] = remainingY;
+	        for (int i = 1; i < tramosEjePrincipal - 1; i++) {
+	            int maxRango = remainingY - (2 * (tramosEjePrincipal - 1 - i));
+	            if (maxRango < 2) {
+	                maxRango = 2;
+	            }
+	            int paso = selectRandInt(2, maxRango);
+	            pasosY[i] = paso;
+	            remainingY = remainingY - paso;
+	        }
+	        pasosY[tramosEjePrincipal - 1] = remainingY;
 
-            for (int step = 0; step < tramosEjeSecundario; step++) {
-                for (int i = 0; i < pasosY[step]; i++) {
-                    currentY = currentY + 1;
-                    int[] pareja = {currentX, currentY};
-                    path.add(pareja);
-                }
+	        for (int step = 0; step < tramosEjeSecundario; step++) {
+	            for (int i = 0; i < pasosY[step]; i++) {
+	                currentY = currentY + 1;
+	                int[] pareja = {currentX, currentY};
+	                path.add(pareja);
+	            }
 
-                int targetX = 0;
-                if (step == tramosEjeSecundario - 1) {
-                    targetX = salida[0]; 
-                } else {
-                    targetX = selectRandInt(1, limit);
-                    while (targetX == currentX || targetX == salida[0]) {
-                        targetX = selectRandInt(1, limit);
-                    }
-                }
+	            int targetX = 0;
+	            if (step == tramosEjeSecundario - 1) {
+	                targetX = salida[0]; 
+	            } else {
+	                targetX = selectRandInt(1, limit);
+	                while (targetX == currentX || targetX == salida[0]) {
+	                    targetX = selectRandInt(1, limit);
+	                }
+	            }
 
-                int dirX = 1;
-                if (targetX < currentX) {
-                    dirX = -1; 
-                }
+	            int dirX = 1;
+	            if (targetX < currentX) {
+	                dirX = -1; 
+	            }
 
-                int moveX = Math.abs(targetX - currentX);
-                for (int i = 0; i < moveX; i++) {
-                    currentX = currentX + dirX;
-                    int[] pareja = {currentX, currentY};
-                    path.add(pareja);
-                }
-            }
+	            int moveX = Math.abs(targetX - currentX);
+	            for (int i = 0; i < moveX; i++) {
+	                currentX = currentX + dirX;
+	                int[] pareja = {currentX, currentY};
+	                path.add(pareja);
+	            }
+	        }
 
-            for (int i = 0; i < pasosY[tramosEjePrincipal - 1]; i++) {
-                currentY = currentY + 1;
-                int[] pareja = {currentX, currentY};
-                path.add(pareja);
-            }
-        }
+	        for (int i = 0; i < pasosY[tramosEjePrincipal - 1]; i++) {
+	            currentY = currentY + 1;
+	            int[] pareja = {currentX, currentY};
+	            path.add(pareja);
+	        }
+	    }
     }
     /**
      * If user puts a wall in the winning path, we have to recalculate the path to win.
@@ -632,10 +996,10 @@ public class RobotMaze {
                 return false;
             }
         }
-         //El camino venia horizontalmente.
+         //Camino horizontal
         if (anteriorY == Y && siguienteY == Y) {
 
-            // Intentamos pasar por arriba
+            // Arriba
             if (Y - 1 >= 0 &&
                     !posicionesCuadrados[anteriorX][Y - 1].getColor().equals("black") &&
                     !posicionesCuadrados[X][Y - 1].getColor().equals("black") &&
@@ -654,7 +1018,7 @@ public class RobotMaze {
                 return true;
             }
 
-            // Intentamos pasar por abajo
+            // Ver abajo
             else if (Y + 1 < posicionesCuadrados[0].length &&
                     !posicionesCuadrados[anteriorX][Y + 1].getColor().equals("black") &&
                     !posicionesCuadrados[X][Y + 1].getColor().equals("black") &&
@@ -673,7 +1037,7 @@ public class RobotMaze {
                 return true;
             }
 
-            // Intentamos dar una vuelta por arriba
+            // Vuelta arriba
             else if (Y - 1 >= 0 &&
                     Y - 2 >= 0 &&
                     !posicionesCuadrados[anteriorX][Y - 1].getColor().equals("black") &&
@@ -804,7 +1168,7 @@ public class RobotMaze {
             }
         }
 
-        // El usuario puso un caso demasiado especifico el cual no fue planeado, entonces simplemente devolvemos false
+        // El usuario puso un caso demasiado especifico el cual no fue planeado, entonces simplemente devolvemos false así no lo dejamos hacerlo
         return false;
     }
     
@@ -879,6 +1243,7 @@ public class RobotMaze {
 
     /**
      * To create the laberinth is necessary to see if a route is closed.
+     * @return if are there open exits.
      */
     public boolean revisarSiEncierraVecino(int vecinoX, int vecinoY, int tamaño) {
         if (vecinoX > 0 && vecinoX < tamaño && vecinoY > 0 && vecinoY < tamaño) {
@@ -989,10 +1354,12 @@ public class RobotMaze {
      * It returns a random number
      * @param infLimit represents the minimum number that we can have
      * @param supLimit represents the maximum number -1 that we can have, because we cannot have the supLimit
+     * @return an int random number beetween infLimit and supLimit-1
      */
     public int selectRandInt(int infLimit, int supLimit){
         int numeroRand = infLimit +(int)(Math.random()*supLimit);
         return numeroRand;
     }
-
+    
+    
 }

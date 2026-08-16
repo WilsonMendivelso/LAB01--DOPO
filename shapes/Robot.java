@@ -12,7 +12,6 @@ public class Robot{
     private boolean isVisible;
     private char direction;
     private int health;
-    private int[] lastMove; 
     private Rectangle[] CuerpoRectangular;
     private Circle[] CuerpoCircular;
     private Triangle[] CuerpoTriangular;
@@ -28,7 +27,6 @@ public class Robot{
         positionY = y;
         direction = 'N';
         health = 10;
-        lastMove = new int[2];
         
         distanceMove = 20;
 
@@ -154,9 +152,7 @@ public class Robot{
             if(!isOk()){
                 JOptionPane.showMessageDialog(null, "Fin del juego. ¡JAJA!");
             }
-            
-            lastMove[0] = positionX;
-            lastMove[1] = positionY;
+
             
         }
         
@@ -322,6 +318,12 @@ public class Robot{
      */
     public void lessOneHearth(){
         health--;
+    }
+    /**
+     * Robot's health is increased by one.
+     */    
+    public void plusOneHearth(){
+        health++;
     }
     
     /**
