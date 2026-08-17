@@ -347,7 +347,7 @@ public class RobotMaze {
                         pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
                         lastChar.add(robot.direction());
                         crashesIntoAWall.add(false);
-                        moveNearPath();
+            
                         if (robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]) {
                             JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
                             continuar = false;
@@ -357,7 +357,7 @@ public class RobotMaze {
                         pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
                         lastChar.add(robot.direction());
                         crashesIntoAWall.add(true);
-                        moveNearPath();
+                        
                         return;
                     }
                 }
@@ -366,7 +366,7 @@ public class RobotMaze {
                     if (!moveBack()) {
                         return;
                     }
-                    moveNearPath();
+                    
                     if (robot.coordinates()[0] == salida[0] && robot.coordinates()[1] == salida[1]) {
                         JOptionPane.showMessageDialog(null, "¡GANASTE! :D");
                         continuar = false;
@@ -752,11 +752,20 @@ public class RobotMaze {
         if (validNextWall()) {
             robot.makeInvisible();
             movingRobot(1);
+            pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+            lastChar.add(robot.direction());
+            crashesIntoAWall.add(false);
+            
             turningRobot(originalDirection);
             robot.makeVisible();
-
+            
+            
+            
             return true;
         } else {
+            pathTraveled.add(new int[]{robot.coordinates()[0], robot.coordinates()[1]});
+            lastChar.add(robot.direction());
+            crashesIntoAWall.add(true);
             turningRobot(originalDirection);
             robot.makeVisible();
 
@@ -807,147 +816,147 @@ public class RobotMaze {
      * It creates the path that goes from Entry to the Exit, this path won't be seen by the user, besides, with this method we know that there's a win possibility.
      */
     public void createPath() {
-	    path = new ArrayList<>();
-	    int limit = posicionesCuadrados.length - 2;
+        path = new ArrayList<>();
+        int limit = posicionesCuadrados.length - 2;
 
-	    int rand = selectRandInt(1, 3); 
-	    int numTramos = 0;
-	    if (rand == 1) {
-	        numTramos = 5;
-	    } else if (rand == 2) {
-	        numTramos =7;
-	    } else {
-	        numTramos = 9;
-	    }
+        int rand = selectRandInt(1, 3); 
+        int numTramos = 0;
+        if (rand == 1) {
+            numTramos = 5;
+        } else if (rand == 2) {
+            numTramos =7;
+        } else {
+            numTramos = 9;
+        }
 
-	    int tramosEjePrincipal = (numTramos + 1) / 2;
-	    int tramosEjeSecundario = numTramos / 2;
+        int tramosEjePrincipal = (numTramos + 1) / 2;
+        int tramosEjeSecundario = numTramos / 2;
 
-	    //Mapa: Izquierda a derecha
-	    if (entrada[0] == 0) {
-	        int currentX = entrada[0];
-	        int currentY = entrada[1];
+        //Mapa: Izquierda a derecha
+        if (entrada[0] == 0) {
+            int currentX = entrada[0];
+            int currentY = entrada[1];
 
-	        int remainingX = limit;
-	        int[] pasosX = new int[tramosEjePrincipal];
+            int remainingX = limit;
+            int[] pasosX = new int[tramosEjePrincipal];
 
-	        int mitad = limit / 3;
-	        if (mitad < 2) {
-	            mitad = 2;
-	        }
-	        pasosX[0] = selectRandInt(2, mitad);
-	        remainingX = remainingX - pasosX[0];
+            int mitad = limit / 3;
+            if (mitad < 2) {
+                mitad = 2;
+            }
+            pasosX[0] = selectRandInt(2, mitad);
+            remainingX = remainingX - pasosX[0];
 
-	        for (int i = 1; i < tramosEjePrincipal - 1; i++) {
-	            int maxRango = remainingX - (2 * (tramosEjePrincipal - 1 - i));
-	            if (maxRango < 2) {
-	                maxRango = 2;
-	            }
-	            int paso = selectRandInt(2, maxRango);
-	            pasosX[i] = paso;
-	            remainingX = remainingX - paso;
-	        }
-	        pasosX[tramosEjePrincipal - 1] = remainingX;
+            for (int i = 1; i < tramosEjePrincipal - 1; i++) {
+                int maxRango = remainingX - (2 * (tramosEjePrincipal - 1 - i));
+                if (maxRango < 2) {
+                    maxRango = 2;
+                }
+                int paso = selectRandInt(2, maxRango);
+                pasosX[i] = paso;
+                remainingX = remainingX - paso;
+            }
+            pasosX[tramosEjePrincipal - 1] = remainingX;
 
-	        for (int step = 0; step < tramosEjeSecundario; step++) {
-	            for (int i = 0; i < pasosX[step]; i++) {
-	                currentX = currentX + 1;
-	                int[] pareja = {currentX, currentY};
-	                path.add(pareja);
-	            }
+            for (int step = 0; step < tramosEjeSecundario; step++) {
+                for (int i = 0; i < pasosX[step]; i++) {
+                    currentX = currentX + 1;
+                    int[] pareja = {currentX, currentY};
+                    path.add(pareja);
+                }
 
-	            int targetY = 0;
-	            if (step == tramosEjeSecundario - 1) {
-	                targetY = salida[1]; 
-	            } else {
-	                targetY = selectRandInt(1, limit);
-	                while (targetY == currentY || targetY == salida[1]) {
-	                    targetY = selectRandInt(1, limit);
-	                }
-	            }
+                int targetY = 0;
+                if (step == tramosEjeSecundario - 1) {
+                    targetY = salida[1]; 
+                } else {
+                    targetY = selectRandInt(1, limit);
+                    while (targetY == currentY || targetY == salida[1]) {
+                        targetY = selectRandInt(1, limit);
+                    }
+                }
 
-	            int dirY = 1;
-	            if (targetY < currentY) {
-	                dirY = -1; 
-	            }
+                int dirY = 1;
+                if (targetY < currentY) {
+                    dirY = -1; 
+                }
 
-	            int moveY = Math.abs(targetY - currentY);
-	            for (int i = 0; i < moveY; i++) {
-	                currentY = currentY + dirY;
-	                int[] pareja = {currentX, currentY};
-	                path.add(pareja);
-	            }
-	        }
+                int moveY = Math.abs(targetY - currentY);
+                for (int i = 0; i < moveY; i++) {
+                    currentY = currentY + dirY;
+                    int[] pareja = {currentX, currentY};
+                    path.add(pareja);
+                }
+            }
 
-	        for (int i = 0; i < pasosX[tramosEjePrincipal - 1]; i++) {
-	            currentX = currentX + 1;
-	            int[] pareja = {currentX, currentY};
-	            path.add(pareja);
-	        }
+            for (int i = 0; i < pasosX[tramosEjePrincipal - 1]; i++) {
+                currentX = currentX + 1;
+                int[] pareja = {currentX, currentY};
+                path.add(pareja);
+            }
 
-	    }
-	    //Mapa arriba-abajo
-	    else if (entrada[1] == 0) {
-	        int currentX = entrada[0];
-	        int currentY = entrada[1];
+        }
+        //Mapa arriba-abajo
+        else if (entrada[1] == 0) {
+            int currentX = entrada[0];
+            int currentY = entrada[1];
 
-	        int remainingY = limit;
-	        int[] pasosY = new int[tramosEjePrincipal];
+            int remainingY = limit;
+            int[] pasosY = new int[tramosEjePrincipal];
 
-	        int mitad = limit / 2;
-	        if (mitad < 2) {
-	            mitad = 2;
-	        }
-	        pasosY[0] = selectRandInt(2, mitad);
-	        remainingY = remainingY - pasosY[0];
+            int mitad = limit / 2;
+            if (mitad < 2) {
+                mitad = 2;
+            }
+            pasosY[0] = selectRandInt(2, mitad);
+            remainingY = remainingY - pasosY[0];
 
-	        for (int i = 1; i < tramosEjePrincipal - 1; i++) {
-	            int maxRango = remainingY - (2 * (tramosEjePrincipal - 1 - i));
-	            if (maxRango < 2) {
-	                maxRango = 2;
-	            }
-	            int paso = selectRandInt(2, maxRango);
-	            pasosY[i] = paso;
-	            remainingY = remainingY - paso;
-	        }
-	        pasosY[tramosEjePrincipal - 1] = remainingY;
+            for (int i = 1; i < tramosEjePrincipal - 1; i++) {
+                int maxRango = remainingY - (2 * (tramosEjePrincipal - 1 - i));
+                if (maxRango < 2) {
+                    maxRango = 2;
+                }
+                int paso = selectRandInt(2, maxRango);
+                pasosY[i] = paso;
+                remainingY = remainingY - paso;
+            }
+            pasosY[tramosEjePrincipal - 1] = remainingY;
 
-	        for (int step = 0; step < tramosEjeSecundario; step++) {
-	            for (int i = 0; i < pasosY[step]; i++) {
-	                currentY = currentY + 1;
-	                int[] pareja = {currentX, currentY};
-	                path.add(pareja);
-	            }
+            for (int step = 0; step < tramosEjeSecundario; step++) {
+                for (int i = 0; i < pasosY[step]; i++) {
+                    currentY = currentY + 1;
+                    int[] pareja = {currentX, currentY};
+                    path.add(pareja);
+                }
 
-	            int targetX = 0;
-	            if (step == tramosEjeSecundario - 1) {
-	                targetX = salida[0]; 
-	            } else {
-	                targetX = selectRandInt(1, limit);
-	                while (targetX == currentX || targetX == salida[0]) {
-	                    targetX = selectRandInt(1, limit);
-	                }
-	            }
+                int targetX = 0;
+                if (step == tramosEjeSecundario - 1) {
+                    targetX = salida[0]; 
+                } else {
+                    targetX = selectRandInt(1, limit);
+                    while (targetX == currentX || targetX == salida[0]) {
+                        targetX = selectRandInt(1, limit);
+                    }
+                }
 
-	            int dirX = 1;
-	            if (targetX < currentX) {
-	                dirX = -1; 
-	            }
+                int dirX = 1;
+                if (targetX < currentX) {
+                    dirX = -1; 
+                }
 
-	            int moveX = Math.abs(targetX - currentX);
-	            for (int i = 0; i < moveX; i++) {
-	                currentX = currentX + dirX;
-	                int[] pareja = {currentX, currentY};
-	                path.add(pareja);
-	            }
-	        }
+                int moveX = Math.abs(targetX - currentX);
+                for (int i = 0; i < moveX; i++) {
+                    currentX = currentX + dirX;
+                    int[] pareja = {currentX, currentY};
+                    path.add(pareja);
+                }
+            }
 
-	        for (int i = 0; i < pasosY[tramosEjePrincipal - 1]; i++) {
-	            currentY = currentY + 1;
-	            int[] pareja = {currentX, currentY};
-	            path.add(pareja);
-	        }
-	    }
+            for (int i = 0; i < pasosY[tramosEjePrincipal - 1]; i++) {
+                currentY = currentY + 1;
+                int[] pareja = {currentX, currentY};
+                path.add(pareja);
+            }
+        }
     }
     /**
      * If user puts a wall in the winning path, we have to recalculate the path to win.
